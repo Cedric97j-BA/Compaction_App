@@ -1,8 +1,9 @@
-const APP_VERSION = 'v1.0.0.0';
+const APP_VERSION = 'v1.0.0.1';
 
 // ========================================== //
 // 1. NAVIGATION ET INITIALISATION            //
 // ========================================== //
+
 
 document.addEventListener('DOMContentLoaded', () => {
     const versionEl = document.getElementById('app-version');
@@ -81,8 +82,20 @@ function deleteEssai(btn) {
 function updateRowIndices() {
     const cards = document.querySelectorAll('.essai-card');
     cards.forEach((card, index) => {
-        card.querySelector('.row-index').textContent = index + 1;
+        const rowNum = index + 1; // 1, 2, 3...
+        // Met à jour le titre visuel de la carte
+        card.querySelector('.row-index').textContent = rowNum;
+        // Injecte la valeur automatique dans le champ "N° essai"
+        const noInput = card.querySelector('.essai-no');
+        if (noInput) noInput.value = rowNum;
     });
+}
+
+function scrollToSection(sectionId) {
+    const element = document.getElementById(sectionId);
+    if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
 }
 
 function calculateCompacite() {
@@ -321,12 +334,165 @@ function deleteReport() {
 }
 
 // ========================================== //
-// 4. MOTEUR D'EXPORT PDF (PLACEHOLDER)       //
+// 4. MOTEUR D'EXPORT PDF MULTI-PAGES         //
 // ========================================== //
 
 async function exportToPDF() {
-    // Note : Comme pour les autres apps, vous devrez fournir le TEMPLATE_COMPACTAGE
-    // en Base64 dans le fichier pdf_templates.js, et on fera le mapping final des champs 
-    // en utilisant exactement les IDs du dictionnaire Excel !
-    alert("Le moteur PDF sera branché dès que nous aurons validé la structure avec le modèle PDF Base64.");
+    try {
+        const btn = document.querySelector('button[onclick="exportToPDF()"]');
+        const originalText = btn ? btn.textContent : "📄 Exporter en PDF";
+        if (btn) {
+            btn.textContent = "⏳ Génération en cours...";
+            btn.disabled = true;
+        }
+
+        const mergedPdf = await PDFLib.PDFDocument.create();
+        
+        const getBuffer = (base64) => {
+            const str = window.atob(base64);
+            const bytes = new Uint8Array(str.length);
+            for (let i = 0; i < str.length; i++) bytes[i] = str.charCodeAt(i);
+            return bytes.buffer;
+        };
+
+        const allEssais = Array.from(document.querySelectorAll('.essai-card'));
+        const maxPerPage = 8;
+        const nbPages = Math.max(1, Math.ceil(allEssais.length / maxPerPage));
+
+        for (let p = 0; p < nbPages; p++) {
+            const subDoc = await PDFLib.PDFDocument.load(getBuffer(TEMPLATE_COMPACTION));
+            const form = subDoc.getForm();
+
+            // 1. Mappage des champs statiques (Identiques sur toutes les pages)
+            form.getFields().forEach(field => {
+                const pdfName = field.getName();
+                
+                // On saute les champs dynamiques de la grille et la pagination pour l'instant
+                if (pdfName.startsWith('essai-row-') || pdfName.startsWith('page-')) return; 
+                
+                const el = document.getElementById(pdfName);
+                if (el) {
+                    let val = el.type === 'checkbox' ? el.checked : el.value;
+                    
+                    if (val !== null && val !== undefined && val !== '') {
+                        try {
+                            if (el.type === 'checkbox') {
+                                val ? field.check() : field.uncheck();
+                            } else {
+                                let finalStr = val.toString();
+                                // EXCLUSION: On garde le point pour les numéros de projet
+                                const lowerName = pdfName.toLowerCase();
+                                const isProjectNumber = lowerName.includes('projet') || lowerName.includes('no-') || lowerName.includes('numero');
+                                
+                                if (!isProjectNumber) {
+                                    finalStr = finalStr.replace(/(\d)\.(\d)/g, '$1,$2'); // Remplacement point par virgule
+                                }
+                                field.setText(finalStr);
+                            }
+                        } catch (e) {
+                            console.warn(`Impossible de remplir le champ ${pdfName}`, e);
+                        }
+                    }
+                }
+            });
+
+            // 2. Mappage Invisible des Cases Maîtresses MG / CG
+            try {
+                if (document.querySelector('.auto-mg-sous:checked')) form.getCheckBox('sous-cal-mg').check();
+                if (document.querySelector('.auto-cg-sous:checked')) form.getCheckBox('sous-cal-cg').check();
+                if (document.querySelector('.auto-mg-rem:checked')) form.getCheckBox('rem-cal-mg').check();
+                if (document.querySelector('.auto-cg-rem:checked')) form.getCheckBox('rem-cal-cg').check();
+            } catch (e) {}
+
+            // 3. Numérotation des pages
+            try { form.getTextField('page-actuelle').setText((p + 1).toString()); } catch(e) {}
+            try { form.getTextField('page-totale').setText(nbPages.toString()); } catch(e) {}
+
+            // 4. Mappage de la grille (8 essais maximum par page)
+            const chunk = allEssais.slice(p * maxPerPage, (p + 1) * maxPerPage);
+            
+            chunk.forEach((card, index) => {
+                const row = index + 1; // Ligne 1 à 8 sur le gabarit PDF actuel
+                
+                const trySetGrid = (cls, pdfFieldSuffix) => {
+                    const el = card.querySelector(cls);
+                    if (el && el.value) {
+                        let finalVal = el.value.toString().replace(/(\d)\.(\d)/g, '$1,$2');
+                        try { form.getTextField(`essai-row-${pdfFieldSuffix}_${row}`).setText(finalVal); } catch(e) {}
+                    }
+                };
+
+                trySetGrid('.essai-secteur', 'secteur');
+                trySetGrid('.essai-no', 'no');
+                trySetGrid('.essai-elevation', 'elevation');
+                trySetGrid('.essai-part', 'part-5mm');
+                trySetGrid('.essai-eau', 'teneur-eau');
+                trySetGrid('.essai-mv-seche', 'mv-seche');
+                trySetGrid('.essai-mv-max-corr', 'mv-max-corr');
+                trySetGrid('.essai-compacite', 'compacite');
+                trySetGrid('.essai-rem', 'rem');
+            });
+
+            if (form.acroForm) form.acroForm.dict.set(PDFLib.PDFName.of('NeedAppearances'), PDFLib.PDFBool.False);
+
+            const copiedPages = await mergedPdf.copyPages(subDoc, subDoc.getPageIndices());
+            copiedPages.forEach(page => mergedPdf.addPage(page));
+        }
+
+        // 5. Nettoyage et création du nom de fichier final
+        const noProjetVal = document.getElementById('global-no-projet').value.trim() || 'SANS-NUMERO';
+        const rawDateVal = document.getElementById('global-date').value || new Date().toISOString().split('T')[0];
+        const techNameVal = document.getElementById('sig-englobe-nom')?.value || '';
+        const initialsVal = techNameVal.split(' ').filter(n => n).map(n => n[0].toUpperCase()).join('') || 'TECH';
+
+        const pdfBytes = await mergedPdf.save();
+        const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+        const fileName = `Compactage_${noProjetVal}_${rawDateVal}_${initialsVal}.pdf`;
+
+        // Logique de partage iOS/Android
+        const isMacTouch = navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1;
+        const isMobileDevice = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || isMacTouch;
+        
+        let attemptedShare = false;
+        try {
+            if (isMobileDevice && navigator.share && navigator.canShare) {
+                const file = new File([blob], fileName, { type: 'application/pdf' });
+                if (navigator.canShare({ files: [file] })) {
+                    attemptedShare = true;
+                    await navigator.share({
+                        files: [file],
+                        title: fileName
+                    });
+                }
+            }
+        } catch (err) {}
+
+        if (!attemptedShare) {
+            const reader = new FileReader();
+            reader.readAsDataURL(blob);
+            reader.onloadend = function() {
+                const base64data = reader.result;
+                const link = document.createElement('a');
+                link.href = base64data;
+                link.download = fileName;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            };
+        }
+        
+        if (btn) {
+            btn.textContent = originalText;
+            btn.disabled = false;
+        }
+
+    } catch (error) {
+        console.error("Erreur lors de l'export PDF :", error);
+        alert("Erreur lors de l'export PDF. Vérifiez la console.");
+        const btn = document.querySelector('button[onclick="exportToPDF()"]');
+        if (btn) {
+            btn.textContent = "📄 Exporter en PDF";
+            btn.disabled = false;
+        }
+    }
 }
