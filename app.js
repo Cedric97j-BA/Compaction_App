@@ -348,6 +348,9 @@ async function exportToPDF() {
 
         const mergedPdf = await PDFLib.PDFDocument.create();
         
+        // 1. Initialisation de Fontkit pour Foxit/Chrome/Preview
+        mergedPdf.registerFontkit(fontkit);
+        
         const getBuffer = (base64) => {
             const str = window.atob(base64);
             const bytes = new Uint8Array(str.length);
@@ -355,19 +358,26 @@ async function exportToPDF() {
             return bytes.buffer;
         };
 
+        // Chargement de la police (Assurez-vous que TAHOMA_FONT est dans pdf_templates.js)
+        const fontBytes = new Uint8Array(getBuffer(TAHOMA_FONT));
+        await mergedPdf.embedFont(fontBytes);
+
         const allEssais = Array.from(document.querySelectorAll('.essai-card'));
         const maxPerPage = 8;
         const nbPages = Math.max(1, Math.ceil(allEssais.length / maxPerPage));
 
         for (let p = 0; p < nbPages; p++) {
             const subDoc = await PDFLib.PDFDocument.load(getBuffer(TEMPLATE_COMPACTION));
+            
+            // On enregistre Fontkit dans le sous-document
+            subDoc.registerFontkit(fontkit);
+            const subFont = await subDoc.embedFont(fontBytes);
             const form = subDoc.getForm();
 
-            // 1. Mappage des champs statiques (Identiques sur toutes les pages)
+            // Mappage des champs statiques
             form.getFields().forEach(field => {
                 const pdfName = field.getName();
                 
-                // On saute les champs dynamiques de la grille et la pagination pour l'instant
                 if (pdfName.startsWith('essai-row-') || pdfName.startsWith('page-')) return; 
                 
                 const el = document.getElementById(pdfName);
@@ -380,12 +390,11 @@ async function exportToPDF() {
                                 val ? field.check() : field.uncheck();
                             } else {
                                 let finalStr = val.toString();
-                                // EXCLUSION: On garde le point pour les numéros de projet
                                 const lowerName = pdfName.toLowerCase();
                                 const isProjectNumber = lowerName.includes('projet') || lowerName.includes('no-') || lowerName.includes('numero');
                                 
                                 if (!isProjectNumber) {
-                                    finalStr = finalStr.replace(/(\d)\.(\d)/g, '$1,$2'); // Remplacement point par virgule
+                                    finalStr = finalStr.replace(/(\d)\.(\d)/g, '$1,$2'); 
                                 }
                                 field.setText(finalStr);
                             }
@@ -396,7 +405,7 @@ async function exportToPDF() {
                 }
             });
 
-            // 2. Mappage Invisible des Cases Maîtresses MG / CG
+            // Mappage Invisible des Cases Maîtresses MG / CG
             try {
                 if (document.querySelector('.auto-mg-sous:checked')) form.getCheckBox('sous-cal-mg').check();
                 if (document.querySelector('.auto-cg-sous:checked')) form.getCheckBox('sous-cal-cg').check();
@@ -404,15 +413,15 @@ async function exportToPDF() {
                 if (document.querySelector('.auto-cg-rem:checked')) form.getCheckBox('rem-cal-cg').check();
             } catch (e) {}
 
-            // 3. Numérotation des pages
+            // Numérotation des pages
             try { form.getTextField('page-actuelle').setText((p + 1).toString()); } catch(e) {}
             try { form.getTextField('page-totale').setText(nbPages.toString()); } catch(e) {}
 
-            // 4. Mappage de la grille (8 essais maximum par page)
+            // Mappage de la grille (8 essais maximum par page)
             const chunk = allEssais.slice(p * maxPerPage, (p + 1) * maxPerPage);
             
             chunk.forEach((card, index) => {
-                const row = index + 1; // Ligne 1 à 8 sur le gabarit PDF actuel
+                const row = index + 1; 
                 
                 const trySetGrid = (cls, pdfFieldSuffix) => {
                     const el = card.querySelector(cls);
@@ -433,13 +442,19 @@ async function exportToPDF() {
                 trySetGrid('.essai-rem', 'rem');
             });
 
-            if (form.acroForm) form.acroForm.dict.set(PDFLib.PDFName.of('NeedAppearances'), PDFLib.PDFBool.False);
+            // === LE FIX FOXIT EST ICI ===
+            try {
+                form.updateFieldAppearances(subFont);
+                if (form.acroForm) form.acroForm.dict.set(PDFLib.PDFName.of('NeedAppearances'), PDFLib.PDFBool.False);
+            } catch (e) {
+                console.warn("Erreur d'apparence PDF", e);
+            }
 
             const copiedPages = await mergedPdf.copyPages(subDoc, subDoc.getPageIndices());
             copiedPages.forEach(page => mergedPdf.addPage(page));
         }
 
-        // 5. Nettoyage et création du nom de fichier final
+        // Nettoyage et création du nom de fichier final
         const noProjetVal = document.getElementById('global-no-projet').value.trim() || 'SANS-NUMERO';
         const rawDateVal = document.getElementById('global-date').value || new Date().toISOString().split('T')[0];
         const techNameVal = document.getElementById('sig-englobe-nom')?.value || '';
