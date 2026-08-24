@@ -1,4 +1,4 @@
-const CACHE_NAME = 'compactage-v1.0.0.2';
+const CACHE_NAME = 'compactage-v1.0.0.3';
 const ASSETS = [
     './',
     './index.html',

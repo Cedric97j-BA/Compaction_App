@@ -1,4 +1,4 @@
-const APP_VERSION = 'v1.0.0.2';
+const APP_VERSION = 'v1.0.0.3';
 
 // ========================================== //
 // 1. NAVIGATION ET INITIALISATION            //
@@ -124,7 +124,7 @@ function calculateCompacite() {
         const referenceMax = mvMaxCorrStr ? parseFloat(mvMaxCorrStr) : globalMax;
 
         if (!isNaN(mvSeche) && !isNaN(referenceMax) && referenceMax > 0) {
-            const compacite = (mvSeche / referenceMax) * 100;
+            const compacite = Math.min((mvSeche / referenceMax) * 100, 100);
             compaciteInput.value = compacite.toFixed(1).replace('.', ',');
 
             // Logique N-C Intelligente
