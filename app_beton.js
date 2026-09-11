@@ -735,7 +735,7 @@ function loadReport() {
             card.querySelector('.truck-plast').value = truckInfo.plast || '';
             card.querySelector('.truck-air1').value = truckInfo.air1 || '';
             card.querySelector('.truck-air2').value = truckInfo.air2 || '';
-            card.querySelector('').value = truckInfo.temp || '';
+            card.querySelector('.truck-temp').value = truckInfo.temp || '';
             card.querySelector('.truck-slump1').value = truckInfo.slump1 || '';
             card.querySelector('.truck-slump1-sp').checked = !!truckInfo.slump1Sp;
             card.querySelector('.truck-slump2').value = truckInfo.slump2 || '';
@@ -871,7 +871,7 @@ function saveReport(isDuplicate = false) {
             plast: card.querySelector('.truck-plast').value,
             air1: card.querySelector('.truck-air1').value,
             air2: card.querySelector('.truck-air2').value,
-            temp: card.querySelector('').value,
+            temp: card.querySelector('.truck-temp').value,
             slump1: card.querySelector('.truck-slump1').value,
             slump1Sp: card.querySelector('.truck-slump1-sp').checked,
             slump2: card.querySelector('.truck-slump2').value,
@@ -1144,7 +1144,7 @@ async function exportToPDF() {
                 trySetF2('.truck-plast', `truck-${row}-plast`);
                 trySetF2('.truck-air1', `truck-${row}-air1`);
                 trySetF2('.truck-air2', `truck-${row}-air2`);
-                trySetF2('', `truck-${row}-temp`);
+                trySetF2('.truck-temp', `truck-${row}-temp`);
                 trySetF2('.truck-slump1', `truck-${row}-slump1`);
                 trySetF2('.truck-slump1-sp', `truck-${row}-slump1-sp`, true);
                 trySetF2('.truck-slump2', `truck-${row}-slump2`);
