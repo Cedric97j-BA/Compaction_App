@@ -361,13 +361,13 @@ button[onclick^="add"]:hover {
     /* 4.1. ALIGNEMENT DES INPUTS D'ÉCHANTILLON DANS LA CARTE CAMION */
     .truck-sample-fields > div {
         display: flex !important;
-        flex-direction: row !important;
-        align-items: flex-end !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
         gap: 10px !important;
     }
     .truck-sample-fields > div > div {
-        flex: 1 1 0% !important;
-        min-width: 0 !important;
+        flex: 1 1 100% !important;
+        min-width: 100% !important;
     }
     .truck-sample-fields label {
         font-size: 0.8rem !important;
@@ -381,6 +381,18 @@ button[onclick^="add"]:hover {
         display: flex !important;
         flex-direction: column !important;
         gap: 15px !important;
+    }
+
+    .sample-card div[style*="grid-template-columns: 2fr 1fr 1fr 1fr"],
+    .temoin-only-card div[style*="grid-template-columns: 2fr 1fr 1fr 1fr"],
+    .temoin-container div[style*="grid-template-columns: 2fr 1fr 1fr 1fr"] {
+        grid-template-columns: 1fr 1fr !important;
+        gap: 10px !important;
+        align-items: flex-start !important;
+    }
+    div[style*="grid-template-columns: 2fr 1fr 1fr 1fr"] input {
+        min-width: 0 !important;
+        width: 100% !important;
     }
     .grid-2 {
         display: flex !important;
