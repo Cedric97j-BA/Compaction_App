@@ -1,5 +1,5 @@
 // Changement du nom pour forcer la mise à jour sur les tablettes
-const CACHE_NAME = 'hub-inspection-v1.1.0.4g';
+const CACHE_NAME = 'hub-inspection-v1.1.0.7';
 
 const ASSETS = [
     './',
