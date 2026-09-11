@@ -33,7 +33,7 @@
         <div style="display: flex; flex-direction: column; gap: 5px;">
             <h1 style="margin: 0; font-size: 1.5rem; letter-spacing: 0.5px;">Bétonnage et Échantillonnage</h1>
             <div>
-                <span id="app-version" style="font-size: 0.95rem; font-weight: bold; background: #73968c; padding: 3px 10px; border-radius: 12px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);">v1.1.0.7c</span>
+                <span id="app-version" style="font-size: 0.95rem; font-weight: bold; background: #73968c; padding: 3px 10px; border-radius: 12px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);">v1.1.0.7d</span>
             </div>
         </div>
 
@@ -582,7 +582,7 @@
                     </div>
 
                     <!-- Toggles : Refusé & Échantillon -->
-                    <div style="margin-top: 10px; padding-top: 10px; border-top: 1px dashed #ccc;">
+                    <div class="truck-toggles-container" style="margin-top: 10px; padding-top: 10px; border-top: 1px dashed #ccc;">
                         <label style="color: #dc2626;"><input type="checkbox" class="truck-refuse" onchange="toggleRefuse(this)"> Camion refusé</label>
                         
                         <label style="margin-top: 5px;"><input type="checkbox" class="truck-sample-check" onchange="toggleSampleFields(this)"> Échantillon prélevé</label>
@@ -674,7 +674,7 @@
                 </div>
 
                 <!-- Toggles : Refusé & Échantillon -->
-                <div style="margin-top: 10px; padding-top: 10px; border-top: 1px dashed #ccc;">
+                <div class="truck-toggles-container" style="margin-top: 10px; padding-top: 10px; border-top: 1px dashed #ccc;">
                     <!-- Appelle toggleRefuse pour changer la couleur de la carte -->
                     <label style="color: #dc2626;"><input type="checkbox" class="truck-refuse" onchange="toggleRefuse(this)"> 🚫 Camion refusé</label>
                     
@@ -785,21 +785,21 @@
                             </div>
                             <div style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 5px; margin-bottom: 5px;">
                                 <label>Prélèvement</label>
-                                <input type="date" class="sample-prelev-date" style="padding: 2px; min-width: 140px; max-width: 100%;">
-                                <input type="time" class="sample-prelev-time" style="padding: 2px; min-width: 140px; max-width: 100%;">
-                                <input type="text" class="sample-prelev-tech" style="padding: 2px; min-width: 140px; max-width: 100%;">
+                                <input type="date" class="sample-prelev-date" style="padding: 2px;  max-width: 100%;">
+                                <input type="time" class="sample-prelev-time" style="padding: 2px;  max-width: 100%;">
+                                <input type="text" class="sample-prelev-tech" style="padding: 2px;  max-width: 100%;">
                             </div>
                             <div style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 5px; margin-bottom: 5px;">
                                 <label>Récupération</label>
-                                <input type="date" class="sample-recup-date" style="padding: 2px; min-width: 140px; max-width: 100%;">
-                                <input type="time" class="sample-recup-time" style="padding: 2px; min-width: 140px; max-width: 100%;">
-                                <input type="text" class="sample-recup-tech" style="padding: 2px; min-width: 140px; max-width: 100%;">
+                                <input type="date" class="sample-recup-date" style="padding: 2px;  max-width: 100%;">
+                                <input type="time" class="sample-recup-time" style="padding: 2px;  max-width: 100%;">
+                                <input type="text" class="sample-recup-tech" style="padding: 2px;  max-width: 100%;">
                             </div>
                             <div style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 5px;">
                                 <label>Chambre humide</label>
-                                <input type="date" class="sample-lab-date" style="padding: 2px; min-width: 140px; max-width: 100%;">
-                                <input type="time" class="sample-lab-time" style="padding: 2px; min-width: 140px; max-width: 100%;">
-                                <input type="text" class="sample-lab-tech" style="padding: 2px; min-width: 140px; max-width: 100%;">
+                                <input type="date" class="sample-lab-date" style="padding: 2px;  max-width: 100%;">
+                                <input type="time" class="sample-lab-time" style="padding: 2px;  max-width: 100%;">
+                                <input type="text" class="sample-lab-tech" style="padding: 2px;  max-width: 100%;">
                             </div>
                         </div>
 

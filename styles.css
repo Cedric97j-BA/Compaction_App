@@ -325,7 +325,7 @@ button[onclick^="add"]:hover {
 
     /* 4. TRUCK CARDS : ALIGNEMENT PAR LE BAS DE TOUTES LES LIGNES */
     .truck-card > div:not(.accordion-content):not(.accordion-header),
-    .truck-card .accordion-content > div {
+    .truck-card .accordion-content > div:not(.truck-toggles-container) {
         display: flex !important;
         flex-direction: row !important;
         align-items: flex-end !important;
@@ -376,23 +376,11 @@ button[onclick^="add"]:hover {
     }
 
     /* 5. FORM 3 : CONDITIONS INITIALES ET SOUS-SECTIONS */
-    .sample-card .form-section div[style*="grid-template-columns: 1fr 1fr"],
-    .temoin-only-card div[style*="grid-template-columns: 1fr 1fr"] {
+    .sample-card .form-section div[style*="grid-template-columns: 1fr 1fr"]:not([style*="2fr"]),
+    .temoin-only-card div[style*="grid-template-columns: 1fr 1fr"]:not([style*="2fr"]) {
         display: flex !important;
         flex-direction: column !important;
         gap: 15px !important;
-    }
-
-    .sample-card div[style*="grid-template-columns: 2fr 1fr 1fr 1fr"],
-    .temoin-only-card div[style*="grid-template-columns: 2fr 1fr 1fr 1fr"],
-    .temoin-container div[style*="grid-template-columns: 2fr 1fr 1fr 1fr"] {
-        grid-template-columns: 1fr 1fr !important;
-        gap: 10px !important;
-        align-items: flex-start !important;
-    }
-    div[style*="grid-template-columns: 2fr 1fr 1fr 1fr"] input {
-        min-width: 0 !important;
-        width: 100% !important;
     }
     .grid-2 {
         display: flex !important;
