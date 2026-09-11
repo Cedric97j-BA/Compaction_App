@@ -201,11 +201,11 @@ input[type="checkbox"] {
 /* STYLES SPÉCIFIQUES DES CARTES             */
 /* ========================================= */
 .truck-card {
-    border: 2px solid var(--primary);
+    border: 2px solid #94a3b8; /* Gris / Slate 400 */
     border-radius: 8px;
     padding: 15px;
     margin-bottom: 15px;
-    background: #f0f9ff;
+    background: #f8fafc; /* Gris très clair / Slate 50 */
     transition: background-color 0.3s, border-color 0.3s;
 }
 .truck-card .input-group {

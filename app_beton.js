@@ -143,6 +143,32 @@ function updateTruckHeader(inputElement) {
     }
 }
 
+function updateTruckColor(card) {
+    const isRefused = card.querySelector('.truck-refuse') && card.querySelector('.truck-refuse').checked;
+    const isSampled = card.querySelector('.truck-sample-check') && card.querySelector('.truck-sample-check').checked;
+    
+    const air1 = card.querySelector('.truck-air1') ? card.querySelector('.truck-air1').value : '';
+    const air2 = card.querySelector('.truck-air2') ? card.querySelector('.truck-air2').value : '';
+    const slump1 = card.querySelector('.truck-slump1') ? card.querySelector('.truck-slump1').value : '';
+    const slump2 = card.querySelector('.truck-slump2') ? card.querySelector('.truck-slump2').value : '';
+    
+    const hasTest = air1 !== '' || air2 !== '' || slump1 !== '' || slump2 !== '';
+
+    if (isRefused) {
+        card.style.borderColor = '#dc2626'; // Rouge
+        card.style.backgroundColor = '#fef2f2';
+    } else if (isSampled) {
+        card.style.borderColor = '#0284c7'; // Bleu
+        card.style.backgroundColor = '#f0f9ff';
+    } else if (hasTest) {
+        card.style.borderColor = '#16a34a'; // Vert
+        card.style.backgroundColor = '#f0fdf4';
+    } else {
+        card.style.borderColor = '#94a3b8'; // Gris (Défaut)
+        card.style.backgroundColor = '#f8fafc'; 
+    }
+}
+
 function toggleSampleFields(checkbox) {
     const card = checkbox.closest('.truck-card');
     const fields = card.querySelector('.truck-sample-fields');
@@ -169,16 +195,18 @@ function toggleSampleFields(checkbox) {
         const linkedCard = container.querySelector(`.sample-card[data-linked-truck="${truckLineNum}"]`);
         
         if (linkedCard) {
-            if (isClearingForm) return; 
-
-            if (confirm(`Voulez-vous supprimer la fiche d'échantillon associée à la Ligne #${truckLineNum} ?`)) {
+            if (isClearingForm) {
+                // If we are clearing form, don't confirm, just continue logic
+            } else if (confirm(`Voulez-vous supprimer la fiche d'échantillon associée à la Ligne #${truckLineNum} ?`)) {
                 linkedCard.remove();
             } else {
                 checkbox.checked = true; 
                 fields.style.display = 'block';
+                return; // User cancelled
             }
         }
     }
+    updateTruckColor(card);
 }
 
 function toggleRefuse(checkbox) {
@@ -186,9 +214,6 @@ function toggleRefuse(checkbox) {
     const remarkInput = card.querySelector('.truck-remarques-list');
 
     if (checkbox.checked) {
-        card.style.borderColor = '#dc2626'; 
-        card.style.backgroundColor = '#fef2f2';
-        
         if (remarkInput) {
             let current = remarkInput.value.split(',').map(s=>s.trim()).filter(s=>s!=="");
             if (!current.includes("N/C")) current.unshift("N/C"); 
@@ -196,14 +221,12 @@ function toggleRefuse(checkbox) {
             remarkInput.value = current.join(',');
         }
     } else {
-        card.style.borderColor = '#0284c7'; 
-        card.style.backgroundColor = '#f8fafc'; 
-        
         if (remarkInput) {
             let current = remarkInput.value.split(',').map(s=>s.trim()).filter(s=>s!=="N/C" && s!=="");
             remarkInput.value = current.join(',');
         }
     }
+    updateTruckColor(card);
     updateAllTruckPreviews();
     calculateTotals();
 }
@@ -712,7 +735,7 @@ function loadReport() {
             card.querySelector('.truck-plast').value = truckInfo.plast || '';
             card.querySelector('.truck-air1').value = truckInfo.air1 || '';
             card.querySelector('.truck-air2').value = truckInfo.air2 || '';
-            card.querySelector('.truck-temp').value = truckInfo.temp || '';
+            card.querySelector('').value = truckInfo.temp || '';
             card.querySelector('.truck-slump1').value = truckInfo.slump1 || '';
             card.querySelector('.truck-slump1-sp').checked = !!truckInfo.slump1Sp;
             card.querySelector('.truck-slump2').value = truckInfo.slump2 || '';
@@ -848,7 +871,7 @@ function saveReport(isDuplicate = false) {
             plast: card.querySelector('.truck-plast').value,
             air1: card.querySelector('.truck-air1').value,
             air2: card.querySelector('.truck-air2').value,
-            temp: card.querySelector('.truck-temp').value,
+            temp: card.querySelector('').value,
             slump1: card.querySelector('.truck-slump1').value,
             slump1Sp: card.querySelector('.truck-slump1-sp').checked,
             slump2: card.querySelector('.truck-slump2').value,
@@ -1121,7 +1144,7 @@ async function exportToPDF() {
                 trySetF2('.truck-plast', `truck-${row}-plast`);
                 trySetF2('.truck-air1', `truck-${row}-air1`);
                 trySetF2('.truck-air2', `truck-${row}-air2`);
-                trySetF2('.truck-temp', `truck-${row}-temp`);
+                trySetF2('', `truck-${row}-temp`);
                 trySetF2('.truck-slump1', `truck-${row}-slump1`);
                 trySetF2('.truck-slump1-sp', `truck-${row}-slump1-sp`, true);
                 trySetF2('.truck-slump2', `truck-${row}-slump2`);
@@ -1372,3 +1395,9 @@ async function exportToPDF() {
         }
     }
 }
+document.addEventListener('input', function(e) {
+    if (e.target.matches('.truck-air1, .truck-air2, .truck-slump1, .truck-slump2')) {
+        const card = e.target.closest('.truck-card');
+        if (card) updateTruckColor(card);
+    }
+});
