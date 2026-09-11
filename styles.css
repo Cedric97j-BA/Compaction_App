@@ -237,6 +237,32 @@ input[type="checkbox"] {
     color: var(--temoin);
 }
 
+/* --- ACCORDÉONS --- */
+.accordion-header {
+    background-color: #e0f2fe;
+    padding: 12px 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    border-bottom: 1px solid #bae6fd;
+}
+.accordion-content {
+    display: none;
+    padding: 15px;
+}
+.accordion-content.active {
+    display: block;
+}
+.chevron {
+    transition: transform 0.3s ease;
+    font-size: 1.2rem;
+    color: #0284c7;
+}
+.chevron.rotated {
+    transform: rotate(180deg);
+}
+
 /* ========================================= */
 /* BOUTONS D'ACTION                          */
 /* ========================================= */
@@ -298,15 +324,21 @@ button[onclick^="add"]:hover {
     }
 
     /* 4. TRUCK CARDS : ALIGNEMENT PAR LE BAS DE TOUTES LES LIGNES */
-    .truck-card > div {
+    .truck-card > div:not(.accordion-content):not(.accordion-header),
+    .truck-card .accordion-content > div {
         display: flex !important;
         flex-direction: row !important;
-        align-items: flex-end !important; 
+        align-items: flex-end !important;
         gap: 6px !important;
         width: 100% !important;
         margin-bottom: 10px !important;
         flex-wrap: nowrap !important;
     }
+
+    /* Protection absolue de l'accordéon sur mobile */
+    .accordion-content { display: none !important; }
+    .accordion-content.active { display: block !important; }
+
     .truck-card .input-group {
         flex: 1 1 0% !important;
         min-width: 0 !important;
@@ -367,4 +399,173 @@ button[onclick^="add"]:hover {
     input[type="date"]::-webkit-inner-spin-button {
         display: none !important;
     }
+}
+
+/* ========================================== */
+/* STYLES DU DASHBOARD (HUB PRINCIPAL)        */
+/* ========================================== */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    padding: 10px 0;
+}
+.app-card {
+    background: white;
+    border-radius: 12px;
+    padding: 30px 20px;
+    text-align: center;
+    text-decoration: none;
+    color: #334155;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    border: 2px solid transparent;
+    transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+.app-card:active, .app-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+    border-color: #97c6b9; 
+}
+.app-icon-img { 
+    width: 65px; 
+    height: 65px; 
+    object-fit: contain; 
+}
+.app-title { font-size: 1.2rem; font-weight: bold; margin: 0; }
+.app-desc { font-size: 0.9rem; color: #64748b; margin: 0; }
+
+.new-app-card {
+    background: #f8fafc;
+    border: 2px dashed #cbd5e1;
+    box-shadow: none;
+}
+.new-app-card:hover, .new-app-card:active {
+    border-color: #97c6b9;
+    background: #f0fdfa;
+}
+
+/* --- NOTIFICATIONS TOAST --- */
+.toast-notification {
+    visibility: hidden;
+    min-width: 250px;
+    background-color: #1e293b; /* Gris très foncé */
+    color: #f8fafc;
+    text-align: center;
+    border-radius: 8px;
+    padding: 16px;
+    position: fixed;
+    z-index: 10000;
+    left: 50%;
+    bottom: 40px;
+    transform: translateX(-50%);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
+    font-size: 1rem;
+    font-weight: bold;
+}
+
+/* Couleurs selon le contexte */
+.toast-success { border-bottom: 4px solid #22c55e; } /* Vert */
+.toast-error { border-bottom: 4px solid #ef4444; } /* Rouge */
+.toast-info { border-bottom: 4px solid #0ea5e9; } /* Bleu */
+
+/* Animation d'apparition et disparition */
+.toast-notification.show {
+    visibility: visible;
+    animation: slideInUp 0.4s ease-out, fadeOut 0.5s ease-in 2.5s;
+}
+
+@keyframes slideInUp {
+    from { bottom: 0; opacity: 0; }
+    to { bottom: 40px; opacity: 1; }
+}
+@keyframes fadeOut {
+    from { bottom: 40px; opacity: 1; }
+    to { bottom: 40px; opacity: 0; }
+}
+
+/* --- MODE NUIT (CORRIGÉ) --- */
+body.dark-mode {
+    background-color: #0f172a; 
+    color: #f8fafc;
+}
+
+/* 1. Main containers and cards */
+body.dark-mode #form-navigation,
+body.dark-mode .tab-section,
+body.dark-mode .form-section,
+body.dark-mode .app-card,
+body.dark-mode .new-app-card {
+    background-color: #1e293b;
+    border-color: #334155;
+}
+
+/* 2. Specific forms (Keeping the color hierarchy but dark) */
+body.dark-mode .truck-card {
+    background-color: #172554; /* Very dark blue */
+    border-color: #1e3a8a;
+}
+body.dark-mode .sample-card {
+    background-color: #064e3b; /* Very dark green */
+    border-color: #047857;
+}
+body.dark-mode .temoin-only-card {
+    background-color: #3b0764; /* Very dark purple */
+    border-color: #6b21a8;
+}
+
+/* 3. Headers and Accordions */
+body.dark-mode h2 { border-bottom-color: #38bdf8; color: #38bdf8; }
+body.dark-mode h3 { background-color: #334155; color: #f8fafc; }
+body.dark-mode h4 { color: #f8fafc; }
+body.dark-mode .sample-card h3 { background-color: #047857; color: white; }
+body.dark-mode .temoin-only-card h3, 
+body.dark-mode .temoin-only-card h4 { background-color: #6b21a8; color: white; }
+body.dark-mode .accordion-header { background-color: #1e3a8a; border-bottom-color: #172554; }
+
+/* 4. Navigation Tabs */
+body.dark-mode .tab-btn { background-color: #334155; color: #cbd5e1; border-color: #475569; }
+body.dark-mode .tab-btn.active, 
+body.dark-mode .tab-btn:hover { background-color: #0284c7; color: white; border-color: #0284c7; }
+
+/* 5. Inputs and Textareas */
+body.dark-mode input, 
+body.dark-mode select, 
+body.dark-mode textarea {
+    background-color: #0f172a;
+    color: #ffffff;
+    border-color: #475569;
+}
+body.dark-mode input:focus,
+body.dark-mode select:focus,
+body.dark-mode textarea:focus {
+    border-color: #38bdf8;
+    box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2);
+}
+
+/* 6. Text and Labels */
+body.dark-mode label, 
+body.dark-mode .app-desc, 
+body.dark-mode .accordion-header {
+    color: #cbd5e1;
+}
+body.dark-mode .app-title,
+body.dark-mode .chevron {
+    color: #f8fafc;
+}
+
+/* 7. Forcer l'écrasement des couleurs écrites directement dans le HTML */
+body.dark-mode #global-header,
+body.dark-mode [style*="background"] {
+    background: #1e293b !important;
+    color: #f8fafc !important;
+    border-color: #334155 !important;
+}
+
+body.dark-mode header img {
+    filter: invert(1);
+    mix-blend-mode: screen;
 }

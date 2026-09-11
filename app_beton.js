@@ -1,4 +1,4 @@
-const APP_VERSION = 'v1.1.0.4';
+const APP_VERSION = 'v1.1.0.7f';
 
 // ========================================== //
 // 1. NAVIGATION ET INTERFACE GLOBALE         //
@@ -15,8 +15,51 @@ document.addEventListener('DOMContentLoaded', () => {
         logoEl.src = LOGO_BASE64;
     }
 
+    if (localStorage.getItem('darkMode') === 'enabled') {
+        document.body.classList.add('dark-mode');
+    }
+
     updateDropdown();
 });
+
+
+// 2. La fonction reliée au bouton
+function toggleDarkMode() {
+    // Ajoute ou retire la classe "dark-mode" sur le corps de la page
+    document.body.classList.toggle('dark-mode');
+    
+    // Vérifie si le mode est activé ou non
+    const isDark = document.body.classList.contains('dark-mode');
+    
+    // Sauvegarde le choix dans la tablette
+    localStorage.setItem('darkMode', isDark ? 'enabled' : 'disabled');
+    
+    // Si vous avez gardé la fonction Toast, on peut l'utiliser !
+    if (typeof showToast === "function") {
+        showToast(isDark ? "Mode Nuit activé" : "Mode Jour activé", "info");
+    }
+}
+
+// Fonction globale pour afficher un Toast
+function showToast(message, type = 'success') {
+    // 1. Création de l'élément
+    const toast = document.createElement('div');
+    toast.className = `toast-notification toast-${type} show`;
+    toast.innerText = message;
+    
+    // 2. Ajout à la page
+    document.body.appendChild(toast);
+    
+    // 3. Destruction après 3 secondes (2.5s d'affichage + 0.5s d'animation de sortie)
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => {
+            if (document.body.contains(toast)) {
+                toast.remove();
+            }
+        }, 500);
+    }, 3000);
+}
 
 function showTab(tabId) {
     const allTabs = document.querySelectorAll('.tab-section');
@@ -72,6 +115,32 @@ function addTruck() {
     }
     
     container.appendChild(clone);
+    currentTruckPage = Math.max(1, Math.ceil(truckCount / TRUCKS_PER_PAGE));
+    updateTruckPagination();
+
+}
+
+// Fonction pour ouvrir ou fermer la carte du camion
+function toggleAccordion(headerElement) {
+    const content = headerElement.nextElementSibling;
+    const chevron = headerElement.querySelector('.chevron');
+    
+    content.classList.toggle('active');
+    chevron.classList.toggle('rotated');
+}
+
+// Fonction pour afficher le numéro de camion et de bordereau dans l'en-tête
+function updateTruckHeader(inputElement) {
+    const card = inputElement.closest('.truck-card');
+    if (!card) return;
+    
+    const truckId = card.querySelector('.truck-id').value || '---';
+    const bordereau = card.querySelector('.truck-bordereau').value || '---';
+    const summary = card.querySelector('.truck-header-summary');
+    
+    if (summary) {
+        summary.textContent = `| Camion: ${truckId} | Bordereau: ${bordereau}`;
+    }
 }
 
 function toggleSampleFields(checkbox) {
@@ -137,6 +206,79 @@ function toggleRefuse(checkbox) {
     }
     updateAllTruckPreviews();
     calculateTotals();
+}
+
+// Variables globales pour la pagination
+let currentTruckPage = 1;
+const TRUCKS_PER_PAGE = 17;
+
+// Fonction 1 : Gère l'affichage selon la page actuelle
+function updateTruckPagination() {
+    const trucks = document.querySelectorAll('.truck-card');
+    const totalTrucks = trucks.length;
+    const paginationBar = document.getElementById('truck-pagination-controls');
+    
+    // S'il n'y a pas de camions, on cache la barre
+    if (totalTrucks === 0) {
+        paginationBar.style.display = 'none';
+        return;
+    }
+    
+    const totalPages = Math.max(1, Math.ceil(totalTrucks / TRUCKS_PER_PAGE));
+    
+    // Sécurité : si on supprime un camion et qu'on perd une page
+    if (currentTruckPage > totalPages) currentTruckPage = totalPages;
+    
+    // Afficher la barre de pagination
+    paginationBar.style.display = 'flex';
+    document.getElementById('current-page-display').textContent = currentTruckPage;
+    document.getElementById('total-pages-display').textContent = totalPages;
+    
+    // Griser les boutons si on est au début ou à la fin
+    document.getElementById('btn-prev-page').disabled = (currentTruckPage === 1);
+    document.getElementById('btn-prev-page').style.opacity = (currentTruckPage === 1) ? "0.5" : "1";
+    
+    document.getElementById('btn-next-page').disabled = (currentTruckPage === totalPages);
+    document.getElementById('btn-next-page').style.opacity = (currentTruckPage === totalPages) ? "0.5" : "1";
+    
+    // Cacher/Afficher les camions
+    const startIndex = (currentTruckPage - 1) * TRUCKS_PER_PAGE;
+    const endIndex = currentTruckPage * TRUCKS_PER_PAGE;
+    
+    trucks.forEach((truck, index) => {
+        if (index >= startIndex && index < endIndex) {
+            truck.style.display = 'block'; // Affiché
+        } else {
+            truck.style.display = 'none'; // Caché
+        }
+    });
+}
+
+// Fonction 2 : Les boutons Précédent/Suivant
+function changeTruckPage(direction) {
+    const totalTrucks = document.querySelectorAll('.truck-card').length;
+    const totalPages = Math.max(1, Math.ceil(totalTrucks / TRUCKS_PER_PAGE));
+    
+    currentTruckPage += direction;
+    
+    // Limites
+    if (currentTruckPage < 1) currentTruckPage = 1;
+    if (currentTruckPage > totalPages) currentTruckPage = totalPages;
+    
+    updateTruckPagination();
+    
+    // Remonter automatiquement la vue au début de la liste des camions
+    document.getElementById('truck-pagination-controls').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// Fonction 3 (Bonus) : Tout réduire pour y voir plus clair
+function collapseAllTrucks() {
+    document.querySelectorAll('.truck-card .accordion-content').forEach(content => {
+        content.classList.remove('active');
+    });
+    document.querySelectorAll('.truck-card .chevron').forEach(chevron => {
+        chevron.classList.remove('rotated');
+    });
 }
 
 // ========================================== //
@@ -271,11 +413,11 @@ function createNewRemark(btn) {
     let lettersOnly = currentList.filter(l => l !== 'N/C');
 
     if (isRefused && lettersOnly.length >= 1) {
-        alert("Un camion refusé (N/C) ne peut avoir qu'une seule remarque supplémentaire.");
+        showToast("Un camion refusé (N/C) ne peut avoir qu'une seule remarque supplémentaire.", "info");
         return;
     }
     if (!isRefused && lettersOnly.length >= 4) {
-        alert("Maximum de 4 remarques par camion atteint.");
+        showToast("Maximum de 4 remarques par camion atteint.");
         return;
     }
 
@@ -299,7 +441,7 @@ function createNewRemark(btn) {
         if (dict[L]) {
             letterToAdd = L; 
         } else {
-            alert(`La remarque ${L} n'existe pas encore. Tapez une description complète pour la créer.`);
+            showToast(`La remarque ${L} n'existe pas encore. Tapez une description complète pour la créer.`, "info");
             return;
         }
     } else {
@@ -321,7 +463,7 @@ function createNewRemark(btn) {
         input.value = currentList.join(','); 
         updateAllTruckPreviews();
     } else {
-        alert(`La remarque ${letterToAdd} est déjà assignée à ce camion.`);
+        showToast(`La remarque ${letterToAdd} est déjà assignée à ce camion.`, "info");
     }
 }
 
@@ -347,7 +489,7 @@ function editGlobalRemarkPrompt() {
             updateAllTruckPreviews(); 
         }
     } else {
-        alert(`La remarque ${letter} n'existe pas.`);
+        showToast(`La remarque ${letter} n'existe pas.`, "info");
     }
 }
 
@@ -402,24 +544,45 @@ function updateDropdown() {
     
     dropdown.innerHTML = '<option value="">-- Sélectionnez un rapport --</option>';
     
-    let savedKeys = [];
+    let savedReports = [];
+    
     for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
-        if (key && key.startsWith('englobe_')) {
-            savedKeys.push(key);
+        
+        try {
+            // 1. Anciens rapports (Sauvegardés sans ID)
+            if (key && key.startsWith('englobe_')) {
+                const displayName = key.replace('englobe_', '').replace(/_/g, ' ');
+                savedReports.push({ key: key, display: displayName });
+            } 
+            // 2. Nouveaux rapports (Sauvegardés avec ID unique)
+            else if (key && key.startsWith('ID_')) {
+                const dataStr = localStorage.getItem(key);
+                if (dataStr && dataStr.includes('{')) {
+                    const data = JSON.parse(dataStr);
+                    if (data && data.displayName && data.displayName.startsWith('englobe_')) {
+                        const displayName = data.displayName.replace('englobe_', '').replace(/_/g, ' ');
+                        savedReports.push({ key: key, display: displayName });
+                    }
+                }
+            }
+        } catch (e) {
+            // Ignorer les fichiers corrompus dans le localStorage
         }
     }
 
-    savedKeys.sort().forEach(key => {
+    // Tri alphabétique basé sur le nom d'affichage
+    savedReports.sort((a, b) => a.display.localeCompare(b.display));
+
+    // Création des options dans le menu déroulant
+    savedReports.forEach(report => {
         const option = document.createElement('option');
-        option.value = key;
-        
-        const displayName = key.replace('englobe_', '').replace(/_/g, ' ');
-        option.textContent = displayName;
-        
+        option.value = report.key; // La vraie clé système (englobe_... ou ID_...)
+        option.textContent = report.display; // Le nom propre et formaté
         dropdown.appendChild(option);
     });
 
+    // Garder le rapport actuel sélectionné dans la liste
     if (currentActiveReportKey) {
         dropdown.value = currentActiveReportKey;
     }
@@ -452,6 +615,8 @@ function clearForm() {
     currentRemarkCharCode = 65; 
 
     calculateTotals();
+    currentTruckPage = 1;
+    updateTruckPagination();
     isClearingForm = false; 
 }
 
@@ -491,7 +656,7 @@ function newReportPrompt() {
     const dropdown = document.getElementById('saved-reports-dropdown');
     if (dropdown) dropdown.value = ""; 
 
-    alert("Écran réinitialisé. Vous pouvez commencer un nouveau rapport.");
+    showToast("Écran réinitialisé. Vous pouvez commencer un nouveau rapport.", "success");
 }
 
 function loadReport() {
@@ -500,7 +665,7 @@ function loadReport() {
     const selectedKey = dropdown.value;
 
     if (!selectedKey) {
-        alert("Veuillez d'abord sélectionner un rapport sauvegardé dans la liste déroulante.");
+        showToast("Veuillez d'abord sélectionner un rapport sauvegardé dans la liste déroulante.", "info");
         return;
     }
 
@@ -516,8 +681,7 @@ function loadReport() {
             if (el) {
                 if (el.type === 'checkbox') {
                     el.checked = value;
-                    const event = new Event('change');
-                    el.dispatchEvent(event);
+                    el.dispatchEvent(new Event('change'));
                 } else {
                     el.value = value;
                 }
@@ -570,6 +734,7 @@ function loadReport() {
 
             card.querySelector('.truck-sample-num').value = truckInfo.sampleNum || '';
             card.querySelector('.truck-sample-time').value = truckInfo.sampleTime || '';
+            updateTruckHeader(card.querySelector('.truck-id'));
             const rmInput = card.querySelector('.truck-remarques-list');
             if (rmInput) {
                 let rawVal = truckInfo.remarquesList || truckInfo.remarqueSelect || '';
@@ -621,7 +786,7 @@ function loadReport() {
     currentActiveReportKey = selectedKey; 
     dropdown.value = selectedKey;
     updateAllTruckPreviews();
-    alert("Rapport chargé avec succès.");
+    showToast("Rapport chargé avec succès.", "success");
 }
 
 function scrollToSection(sectionId) {
@@ -631,27 +796,37 @@ function scrollToSection(sectionId) {
     }
 }
 
-function saveReport() {
-    const noProjet = document.getElementById('global-no-projet').value.trim() || 'SANS-NUMERO';
-    const rawDate = document.getElementById('global-date').value || new Date().toISOString().split('T')[0];
-    const resistance = document.getElementById('f2-spec-resistance')?.value.trim() || 'Mix';
-    const techName = document.getElementById('f2-tech-name')?.value || document.getElementById('f1-tech-name')?.value || '';
-    const techInitials = techName.split(' ').filter(n => n).map(n => n[0].toUpperCase()).join('') || 'TECH';
-    
-    // Modèle automatique par défaut
-    const defaultBaseName = `englobe_${rawDate}_${noProjet}_${resistance}_${techInitials}`;
-    
-    // Boîte de dialogue pour valider ou personnaliser le nom
-    let userPromptName = prompt("Nom de sauvegarde du rapport (modifiable) :", defaultBaseName);
-    if (userPromptName === null) return; // Annulation
-    
-    let baseName = userPromptName.trim() || defaultBaseName;
-    if (!baseName.startsWith('englobe_')) {
-        baseName = `englobe_${baseName}`;
+function saveReport(isDuplicate = false) {
+    let saveKey = currentActiveReportKey;
+    let baseName = "";
+
+    // On récupère le nom existant s'il y en a un
+    if (saveKey) {
+        try {
+            const oldData = JSON.parse(localStorage.getItem(saveKey));
+            if (oldData && oldData.displayName) baseName = oldData.displayName;
+        } catch(e) {}
     }
-    
-    if (currentActiveReportKey && !currentActiveReportKey.startsWith(baseName)) {
-        currentActiveReportKey = null;
+
+    if (!saveKey || isDuplicate) {
+        const noProjet = document.getElementById('global-no-projet').value.trim() || 'SANS-NUMERO';
+        const rawDate = document.getElementById('global-date').value || new Date().toISOString().split('T')[0];
+        const resistance = document.getElementById('f2-spec-resistance')?.value.trim() || 'Mix';
+        const techName = document.getElementById('f2-tech-name')?.value || document.getElementById('f1-tech-name')?.value || '';
+        const techInitials = techName.split(' ').filter(n => n).map(n => n[0].toUpperCase()).join('') || 'TECH';
+        
+        const defaultBaseName = `englobe_${rawDate}_${noProjet}_${resistance}_${techInitials}`;
+        const promptMsg = isDuplicate ? "Nom pour la COPIE du rapport :" : "Nom de sauvegarde du rapport (modifiable) :";
+        const promptDefault = (isDuplicate && baseName) ? `${baseName}_copie` : defaultBaseName;
+
+        let userPromptName = prompt(promptMsg, promptDefault);
+        if (userPromptName === null) return; 
+        
+        baseName = userPromptName.trim() || defaultBaseName;
+        if (!baseName.startsWith('englobe_')) baseName = `englobe_${baseName}`;
+        
+        // Création de l'identifiant unique invisible
+        saveKey = 'ID_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
     }
 
     const staticData = {};
@@ -695,29 +870,13 @@ function saveReport() {
         
         card.querySelectorAll('input, textarea, select').forEach(input => {
             const cls = Array.from(input.classList).find(c => c.startsWith('sample-') || c.startsWith('temoin-'));
-            if (cls) {
-                data[cls] = input.type === 'checkbox' ? input.checked : input.value;
-            }
+            if (cls) data[cls] = input.type === 'checkbox' ? input.checked : input.value;
         });
         samplesData.push(data);
     });
 
-    let saveKey = currentActiveReportKey;
-    if (!saveKey) {
-        let maxIndex = 0;
-        for (let i = 0; i < localStorage.length; i++) {
-            const key = localStorage.key(i);
-            if (key && key.startsWith(baseName)) {
-                const parts = key.path ? key.split('_') : key.split('_');
-                const idx = parseInt(parts[parts.length - 1]);
-                if (!isNaN(idx) && idx > maxIndex) maxIndex = idx;
-            }
-        }
-        const nextIndex = String(maxIndex + 1).padStart(2, '0');
-        saveKey = `${baseName}_${nextIndex}`;
-    }
-
     const reportData = {
+        displayName: baseName, // <-- Le nom que le technicien voit
         static: staticData,
         trucks: trucksData,
         samples: samplesData,
@@ -731,7 +890,42 @@ function saveReport() {
     
     const dropdown = document.getElementById('saved-reports-dropdown');
     if (dropdown) dropdown.value = saveKey;
-    alert("Rapport sauvegardé avec succès sous : " + saveKey);
+    showToast(isDuplicate ? "Copie sauvegardée avec succès sous : " + baseName : "Rapport mis à jour : " + baseName, "success");
+}
+
+function deleteTruckCard(btn, event) {
+    event.stopPropagation(); // Empêche l'accordéon de s'ouvrir/fermer quand on clique sur le X
+    if (confirm("Voulez-vous vraiment supprimer ce camion ?")) {
+        const card = btn.closest('.truck-card');
+        card.remove();
+        renumberTrucks();
+        calculateTotals();
+        updateTruckPagination();
+        syncForm3UI();
+    }
+}
+
+function renumberTrucks() {
+    const trucks = document.querySelectorAll('.truck-card');
+    trucks.forEach((card, index) => {
+        const newNum = index + 1;
+        const numDisplay = card.querySelector('.truck-number-display');
+        const oldNum = numDisplay.textContent;
+        
+        // 1. Mise à jour visuelle du camion
+        numDisplay.textContent = newNum;
+        
+        // 2. Mise à jour de la liaison avec le Formulaire 3
+        const linkedSamples = document.querySelectorAll(`.sample-card[data-linked-truck="${oldNum}"]`);
+        linkedSamples.forEach(sample => {
+            sample.dataset.linkedTruck = newNum;
+            const displayEl = sample.querySelector('.sample-truck-linked');
+            if (displayEl) displayEl.textContent = newNum;
+        });
+    });
+    
+    // 3. Réinitialise le compteur global pour le prochain ajout
+    truckCount = trucks.length; 
 }
 
 let deleteArmed = false;
@@ -742,7 +936,7 @@ function deleteReport() {
     const targetKey = currentActiveReportKey || (dropdown ? dropdown.value : null);
 
     if (!targetKey) {
-        alert("Veuillez sélectionner un rapport sauvegardé dans la liste pour le supprimer.");
+        showToast("Veuillez sélectionner un rapport sauvegardé dans la liste pour le supprimer.", "info");
         return;
     }
 
@@ -773,7 +967,7 @@ function deleteReport() {
     }
 
     localStorage.removeItem(targetKey); 
-    alert(`Le rapport a été supprimé avec succès.`);
+    showToast(`Le rapport a été supprimé avec succès.`, "success");
     
     currentActiveReportKey = null; 
     clearForm(); 
@@ -1132,41 +1326,35 @@ async function exportToPDF() {
         const blob = new Blob([pdfBytes], { type: 'application/pdf' });
         const fileName = `Rapport_${rawDateVal}_${noProjetVal}_${resistanceVal}_${initialsVal}.pdf`;
 
-        // CORRECTIF : Détecter mobile/tablette (incluant l'iPad qui se fait passer pour un Mac)
+       // LOGIQUE SÉPARÉE : APPLE VS ANDROID/PC
         const isMacTouch = navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1;
-        const isMobileDevice = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || isMacTouch;
+        const isApple = /iPhone|iPad|iPod/i.test(navigator.userAgent) || isMacTouch;
         
         let attemptedShare = false;
-
         try {
-            // Utiliser le menu de partage UNIQUEMENT sur mobile/tablette
-            if (isMobileDevice && navigator.share && navigator.canShare) {
+            // UNIQUEMENT POUR APPLE : On ouvre le menu de partage
+            if (isApple && navigator.share && navigator.canShare) {
                 const file = new File([blob], fileName, { type: 'application/pdf' });
                 if (navigator.canShare({ files: [file] })) {
                     attemptedShare = true;
-                    await navigator.share({
-                        files: [file],
-                        title: fileName
-                    });
+                    await navigator.share({ files: [file] });
                 }
             }
         } catch (err) {
             console.log("Partage annulé ou échoué:", err);
+            if (err.name !== 'AbortError') attemptedShare = false;
         }
 
-        // Sur PC (ou si le partage mobile échoue), on télécharge directement
+        // POUR ANDROID ET PC : On sauvegarde directement le fichier en local
         if (!attemptedShare) {
-            const reader = new FileReader();
-            reader.readAsDataURL(blob);
-            reader.onloadend = function() {
-                const base64data = reader.result;
-                const link = document.createElement('a');
-                link.href = base64data;
-                link.download = fileName;
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-            };
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = fileName;
+            document.body.appendChild(link);
+            link.click(); // Force le téléchargement direct dans le dossier de la tablette
+            document.body.removeChild(link);
+            setTimeout(() => window.URL.revokeObjectURL(url), 100);
         }
         
         if (btn) {
@@ -1175,10 +1363,10 @@ async function exportToPDF() {
         }
 
     } catch (error) {
-        console.error("Erreur lors de l'export multi-template :", error);
-        alert("Erreur lors de l'export PDF. Vérifiez la console.");
+        console.error("Erreur lors de l'export PDF :", error);
+        showToast("Erreur lors de l'export PDF. Vérifiez la console.", "error");
         const btn = document.querySelector('button[onclick="exportToPDF()"]');
-        if(btn) {
+        if (btn) {
             btn.textContent = "📄 Exporter en PDF";
             btn.disabled = false;
         }

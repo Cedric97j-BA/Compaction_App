@@ -6,7 +6,13 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # 2. Construit les chemins complets en utilisant le dossier du script
 files_to_convert = {
+    "TEMPLATE_F1": os.path.join(BASE_DIR, "templates", "template_f1.pdf"),
+    "TEMPLATE_F2": os.path.join(BASE_DIR, "templates", "template_f2.pdf"),
+    "TEMPLATE_F3": os.path.join(BASE_DIR, "templates", "template_f3.pdf"),
+    "TEMPLATE_TEMOIN": os.path.join(BASE_DIR, "templates", "template_temoin.pdf"),
     "TEMPLATE_COMPACTION": os.path.join(BASE_DIR, "templates", "template_compaction.pdf"),
+    "TEMPLATE_PLANCHE": os.path.join(BASE_DIR, "templates", "template_planche.pdf"),
+    "TEMPLATE_ECHSOLGRA": os.path.join(BASE_DIR, "templates", "template_echsolgra.pdf"),
     "TAHOMA_FONT": os.path.join(BASE_DIR, "fonts", "tahoma.ttf") 
 }
 
