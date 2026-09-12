@@ -1,15 +1,8 @@
-const APP_VERSION = 'v1.1.0.7h';
-
 // ========================================== //
 // 1. NAVIGATION ET INTERFACE GLOBALE         //
 // ========================================== //
 
 document.addEventListener('DOMContentLoaded', () => {
-    const versionEl = document.getElementById('app-version');
-    if (versionEl) {
-        versionEl.textContent = APP_VERSION;
-    }
-    
     const logoEl = document.getElementById('main-logo');
     if (logoEl && typeof LOGO_BASE64 !== 'undefined') {
         logoEl.src = LOGO_BASE64;
@@ -154,18 +147,14 @@ function updateTruckColor(card) {
     
     const hasTest = air1 !== '' || air2 !== '' || slump1 !== '' || slump2 !== '';
 
+    card.classList.remove('truck-status-refused', 'truck-status-sampled', 'truck-status-tested');
+
     if (isRefused) {
-        card.style.borderColor = '#dc2626'; // Rouge
-        card.style.backgroundColor = '#fef2f2';
+        card.classList.add('truck-status-refused');
     } else if (isSampled) {
-        card.style.borderColor = '#0284c7'; // Bleu
-        card.style.backgroundColor = '#f0f9ff';
+        card.classList.add('truck-status-sampled');
     } else if (hasTest) {
-        card.style.borderColor = '#16a34a'; // Vert
-        card.style.backgroundColor = '#f0fdf4';
-    } else {
-        card.style.borderColor = '#94a3b8'; // Gris (Défaut)
-        card.style.backgroundColor = '#f8fafc'; 
+        card.classList.add('truck-status-tested');
     }
 }
 
@@ -561,6 +550,16 @@ function addTemoinOnly() {
 
 let currentActiveReportKey = null;
 
+function updateLastSavedStatus(timestamp = Date.now()) {
+    const status = document.getElementById('last-saved-status');
+    if (status) {
+        const date = new Date(timestamp);
+        const dateText = date.toLocaleDateString('fr-CA');
+        const timeText = date.toLocaleTimeString('fr-CA', { hour: '2-digit', minute: '2-digit', hour12: false }).replace(':', 'H');
+        status.textContent = `Dernière sauvegarde : ${dateText} - ${timeText}`;
+    }
+}
+
 function updateDropdown() {
     const dropdown = document.getElementById('saved-reports-dropdown');
     if (!dropdown) return;
@@ -708,6 +707,7 @@ function loadReport() {
         showToast("Ce rapport est invalide ou provient d'une ancienne version.", "error");
         return;
     }
+    updateLastSavedStatus(reportData.timestamp);
 
     if (reportData.static) {
         for (const [id, value] of Object.entries(reportData.static)) {
@@ -920,12 +920,13 @@ function saveReport(isDuplicate = false) {
 
     localStorage.setItem(saveKey, JSON.stringify(reportData));
     currentActiveReportKey = saveKey; 
+    updateLastSavedStatus(reportData.timestamp);
     
     updateDropdown();
     
     const dropdown = document.getElementById('saved-reports-dropdown');
     if (dropdown) dropdown.value = saveKey;
-    showToast(isDuplicate ? "Copie sauvegardée avec succès sous : " + baseName : "Rapport mis à jour : " + baseName, "success");
+    showToast(isDuplicate ? "Copie sauvegardée avec succès." : "Rapport sauvegardé avec succès.", "success");
 }
 
 function deleteTruckCard(btn, event) {

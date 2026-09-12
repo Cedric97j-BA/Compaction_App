@@ -1,15 +1,8 @@
-const APP_VERSION = 'v1.0.0.3';
-
 // ========================================== //
 // 1. INITIALISATION ET INTERFACE GLOBALE     //
 // ========================================== //
 
 document.addEventListener('DOMContentLoaded', () => {
-    const versionEl = document.getElementById('app-version');
-    if (versionEl) {
-        versionEl.textContent = APP_VERSION;
-    }
-    
     const logoEl = document.getElementById('main-logo');
     if (logoEl && typeof LOGO_BASE64 !== 'undefined') {
         logoEl.src = LOGO_BASE64;
@@ -51,6 +44,16 @@ function showToast(message, type = 'success') {
 
 let currentActiveReportKey = null;
 let isClearingForm = false; 
+
+function updateLastSavedStatus(timestamp = Date.now()) {
+    const status = document.getElementById('last-saved-status');
+    if (status) {
+        const date = new Date(timestamp);
+        const dateText = date.toLocaleDateString('fr-CA');
+        const timeText = date.toLocaleTimeString('fr-CA', { hour: '2-digit', minute: '2-digit', hour12: false }).replace(':', 'H');
+        status.textContent = `Dernière sauvegarde : ${dateText} - ${timeText}`;
+    }
+}
 
 function updateDropdown() {
     const dropdown = document.getElementById('saved-reports-dropdown');
@@ -183,6 +186,7 @@ function saveReport(isDuplicate = false) {
 
     localStorage.setItem(saveKey, JSON.stringify(reportData));
     currentActiveReportKey = saveKey; 
+    updateLastSavedStatus(reportData.timestamp);
     
     updateDropdown();
     const dropdown = document.getElementById('saved-reports-dropdown');
@@ -216,6 +220,7 @@ function loadReport() {
         showToast("Ce rapport est invalide ou provient d'une ancienne version.", "error");
         return;
     }
+    updateLastSavedStatus(reportData.timestamp);
 
     if (reportData.static) {
         for (const [id, value] of Object.entries(reportData.static)) {

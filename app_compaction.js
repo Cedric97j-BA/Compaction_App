@@ -1,14 +1,9 @@
-const APP_VERSION = 'v1.1.0.7c';
-
 // ========================================== //
 // 1. NAVIGATION ET INITIALISATION            //
 // ========================================== //
 
 
 document.addEventListener('DOMContentLoaded', () => {
-    const versionEl = document.getElementById('app-version');
-    if (versionEl) versionEl.textContent = APP_VERSION;
-
     if (document.getElementById('essais-container').children.length === 0) {
         addEssai();
     }
@@ -207,6 +202,16 @@ function calculateCompacite() {
 // ========================================== //
 
 let currentActiveReportKey = null;
+
+function updateLastSavedStatus(timestamp = Date.now()) {
+    const status = document.getElementById('last-saved-status');
+    if (status) {
+        const date = new Date(timestamp);
+        const dateText = date.toLocaleDateString('fr-CA');
+        const timeText = date.toLocaleTimeString('fr-CA', { hour: '2-digit', minute: '2-digit', hour12: false }).replace(':', 'H');
+        status.textContent = `Dernière sauvegarde : ${dateText} - ${timeText}`;
+    }
+}
 /*
 function updateDropdown() {
     const dropdown = document.getElementById('saved-reports-dropdown');
@@ -318,6 +323,7 @@ function loadReport() {
         showToast("Ce rapport est invalide ou provient d'une ancienne version.", "error");
         return;
     }
+    updateLastSavedStatus(reportData.timestamp);
 
     clearForm();
 
@@ -423,13 +429,14 @@ function saveReport(isDuplicate = false) {
 
     localStorage.setItem(saveKey, JSON.stringify(reportData));
     currentActiveReportKey = saveKey; 
+    updateLastSavedStatus(reportData.timestamp);
     
     updateDropdown();
     
     const dropdown = document.getElementById('saved-reports-dropdown');
     if (dropdown) dropdown.value = saveKey;
     
-    showToast(isDuplicate ? "Copie sauvegardée avec succès sous : " + baseName : "Rapport mis à jour : " + baseName, "success");
+    showToast(isDuplicate ? "Copie sauvegardée avec succès." : "Rapport sauvegardé avec succès.", "success");
 }
 
 function deleteReport() {

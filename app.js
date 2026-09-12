@@ -1,15 +1,8 @@
-const APP_VERSION = 'v1.1.0.4';
-
 // ========================================== //
 // 1. NAVIGATION ET INTERFACE GLOBALE         //
 // ========================================== //
 
 document.addEventListener('DOMContentLoaded', () => {
-    const versionEl = document.getElementById('app-version');
-    if (versionEl) {
-        versionEl.textContent = APP_VERSION;
-    }
-    
     const logoEl = document.getElementById('main-logo');
     if (logoEl && typeof LOGO_BASE64 !== 'undefined') {
         logoEl.src = LOGO_BASE64;

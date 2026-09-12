@@ -1,4 +1,4 @@
-const CACHE_NAME = 'hub-inspection-v1.1.0.8';
+const CACHE_NAME = 'hub-inspection-v1.1.0.9b';
 
 // These files are required for the application to start and work offline.
 const APP_ASSETS = [

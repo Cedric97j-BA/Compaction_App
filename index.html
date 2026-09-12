@@ -77,15 +77,104 @@
 </button>
 
 <div>
-    <span id="app-version" style="position: fixed; bottom: 15px; right: 15px; z-index: 9999; font-size: 0.95rem; font-weight: bold; padding: 3px 10px; border-radius: 12px; ">v1.1.0.7e</span>
+    <span id="app-version" style="position: fixed; bottom: 15px; right: 15px; z-index: 9999; font-size: 0.95rem; font-weight: bold; padding: 3px 10px; border-radius: 12px; ">v1.1.0.9b</span>
+</div>
+
+<div style="text-align: center; margin: 12px auto 24px;">
+    <button id="diagnostics-toggle" type="button" onclick="toggleDiagnostics()" style="background: #64748b; color: white; padding: 8px 14px; border-radius: 6px; border: none; cursor: pointer;">
+        Afficher l'état hors ligne et les diagnostics
+    </button>
+    <div id="diagnostics-panel" hidden style="max-width: 620px; margin: 12px auto 0; padding: 12px; text-align: left; background: #f1f5f9; color: #334155; border-radius: 6px; font-size: 0.9rem; white-space: pre-line;"></div>
 </div>
  
 <script>
+    const APP_VERSION = 'v1.1.0.9b';
+
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
             navigator.serviceWorker.register('./sw.js')
                 .catch(() => showToast("Impossible d'activer le mode hors ligne.", "error"));
         });
+    }
+
+    async function toggleDiagnostics() {
+        const panel = document.getElementById('diagnostics-panel');
+        const button = document.getElementById('diagnostics-toggle');
+        if (!panel || !button) return;
+
+        if (!panel.hidden) {
+            panel.hidden = true;
+            button.textContent = "Afficher l'état hors ligne et les diagnostics";
+            return;
+        }
+
+        panel.hidden = false;
+        button.textContent = "Masquer l'état hors ligne et les diagnostics";
+        panel.textContent = "Vérification de l'état de l'application...";
+
+        const lines = [
+            `Version de l'application : ${APP_VERSION}`,
+            `Connexion réseau : ${navigator.onLine ? "En ligne" : "Hors ligne"}`,
+            `Service Worker : ${'serviceWorker' in navigator ? "Disponible" : "Non disponible"}`
+        ];
+
+        if ('serviceWorker' in navigator) {
+            const registration = await navigator.serviceWorker.getRegistration();
+            lines.push(`Service Worker actif : ${registration && registration.active ? registration.active.state : "Non actif"}`);
+            lines.push(`Page contrôlée : ${navigator.serviceWorker.controller ? "Oui" : "Non"}`);
+        }
+
+        if ('caches' in window) {
+            const cacheNames = await caches.keys();
+            lines.push(`Caches disponibles : ${cacheNames.length ? cacheNames.join(", ") : "Aucun"}`);
+            const appCacheName = cacheNames.find((name) => name.startsWith('hub-inspection-'));
+            if (appCacheName) {
+                const appCache = await caches.open(appCacheName);
+                lines.push(`Fichiers en cache : ${(await appCache.keys()).length}`);
+            } else {
+                lines.push("Fichiers en cache : Aucun cache de l'application");
+            }
+        }
+
+        const reportPrefixes = [
+            ["Rapports béton", ["englobe_"]],
+            ["Rapports compactage", ["compactage_"]],
+            ["Rapports planche", ["planche_"]],
+            ["Rapports échantillonnage", ["echsolgra_"]]
+        ];
+        reportPrefixes.forEach(([label, prefixes]) => {
+            let count = 0;
+            for (let i = 0; i < localStorage.length; i += 1) {
+                const key = localStorage.key(i);
+                if (!key) continue;
+                if (prefixes.some((prefix) => key.startsWith(prefix))) {
+                    count += 1;
+                    continue;
+                }
+                if (key.startsWith("ID_")) {
+                    try {
+                        const report = JSON.parse(localStorage.getItem(key));
+                        if (report && typeof report.displayName === "string" &&
+                            prefixes.some((prefix) => report.displayName.startsWith(prefix))) count += 1;
+                    } catch (error) {
+                        console.warn("Rapport ignoré dans le diagnostic", key, error);
+                    }
+                }
+            }
+            lines.push(`${label} : ${count}`);
+        });
+
+        if (navigator.storage && navigator.storage.estimate) {
+            const estimate = await navigator.storage.estimate();
+            const usedMb = ((estimate.usage || 0) / 1024 / 1024).toFixed(2);
+            const quotaMb = estimate.quota ? (estimate.quota / 1024 / 1024).toFixed(0) : "?";
+            lines.push(`Stockage local utilisé : ${usedMb} Mo / ${quotaMb} Mo`);
+            if (estimate.quota && estimate.usage / estimate.quota >= 0.8) {
+                lines.push("AVERTISSEMENT : le stockage local dépasse 80 % de la capacité estimée.");
+            }
+        }
+
+        panel.textContent = lines.join("\n");
     }
 
     async function forceAppUpdate() {
@@ -107,13 +196,8 @@
                 }
 
                 const registration = await navigator.serviceWorker.ready;
-                await registration.update();
-
-                if (registration.waiting) {
-                    registration.waiting.postMessage({ type: 'SKIP_WAITING' });
-                }
-
-                await new Promise((resolve, reject) => {
+                let updateFound = false;
+                const activation = new Promise((resolve, reject) => {
                     const timeout = setTimeout(() => {
                         reject(new Error("Délai de mise à jour dépassé"));
                     }, 30000);
@@ -123,15 +207,37 @@
                         resolve();
                     };
 
-                    if (!registration.installing && !registration.waiting) {
-                        finish();
-                    } else if (navigator.serviceWorker.controller) {
-                        navigator.serviceWorker.addEventListener('controllerchange', finish, { once: true });
-                    } else {
-                        finish();
-                    }
-                });
+                    const watchWorker = (worker) => {
+                        if (!worker) return;
+                        updateFound = true;
+                        if (worker.state === 'activated') {
+                            finish();
+                        } else {
+                            worker.addEventListener('statechange', () => {
+                                if (worker.state === 'activated') finish();
+                            });
+                        }
+                    };
 
+                    if (registration.waiting) {
+                        registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+                        watchWorker(registration.waiting);
+                    }
+                    if (registration.installing) watchWorker(registration.installing);
+                    registration.addEventListener('updatefound', () => watchWorker(registration.installing), { once: true });
+                    navigator.serviceWorker.addEventListener('controllerchange', finish, { once: true });
+                });
+                await registration.update();
+                if (registration.installing || registration.waiting || updateFound) {
+                    await activation;
+                } else {
+                    await new Promise((resolve) => setTimeout(resolve, 1000));
+                }
+
+                sessionStorage.setItem(
+                    'updateResult',
+                    updateFound ? `Mise à jour terminée. Version active : ${APP_VERSION}` : `L'application est déjà à jour (${APP_VERSION}).`
+                );
                 window.location.reload();
             } catch (error) {
                 console.error("Échec de la mise à jour", error);
@@ -160,6 +266,11 @@
     document.addEventListener('DOMContentLoaded', () => {
         if (localStorage.getItem('darkMode') === 'enabled') {
             document.body.classList.add('dark-mode');
+        }
+        const updateResult = sessionStorage.getItem('updateResult');
+        if (updateResult) {
+            sessionStorage.removeItem('updateResult');
+            showToast(updateResult, "success");
         }
     });
 

@@ -208,6 +208,21 @@ input[type="checkbox"] {
     background: #f8fafc; /* Gris très clair / Slate 50 */
     transition: background-color 0.3s, border-color 0.3s;
 }
+.truck-card.truck-status-refused {
+    border-color: #dc2626 !important;
+    background-color: #fecaca !important;
+}
+.truck-card.truck-status-sampled {
+    border-color: #16a34a !important;
+    background-color: #bbf7d0 !important;
+}
+.truck-card.truck-status-tested {
+    border-color: #0284c7 !important;
+    background-color: #bae6fd !important;
+}
+.truck-card > .accordion-header {
+    background-color: #e2e8f0 !important;
+}
 .truck-card .input-group {
     margin-bottom: 0; 
 }
@@ -508,6 +523,25 @@ body.dark-mode .truck-card {
     background-color: #172554; /* Very dark blue */
     border-color: #1e3a8a;
 }
+body.dark-mode .truck-card.truck-status-refused {
+    border-color: #f87171 !important;
+    background-color: #450a0a !important;
+}
+body.dark-mode .truck-card.truck-status-sampled {
+    border-color: #4ade80 !important;
+    background-color: #052e16 !important;
+}
+body.dark-mode .truck-card.truck-status-tested {
+    border-color: #38bdf8 !important;
+    background-color: #082f49 !important;
+}
+body.dark-mode .truck-card > .accordion-header {
+    background-color: #334155 !important;
+}
+body.dark-mode .home-button {
+    border: 1px solid #94a3b8 !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.35) !important;
+}
 body.dark-mode .sample-card {
     background-color: #064e3b; /* Very dark green */
     border-color: #047857;
@@ -525,6 +559,30 @@ body.dark-mode .sample-card h3 { background-color: #047857; color: white; }
 body.dark-mode .temoin-only-card h3, 
 body.dark-mode .temoin-only-card h4 { background-color: #6b21a8; color: white; }
 body.dark-mode .accordion-header { background-color: #1e3a8a; border-bottom-color: #172554; }
+body.dark-mode .truck-header-summary,
+body.dark-mode .form-instructions,
+body.dark-mode .truck-legend,
+body.dark-mode .page-numbering {
+    color: #f8fafc !important;
+}
+body.dark-mode .truck-legend span {
+    color: #7dd3fc !important;
+}
+body.dark-mode .truck-legend span:nth-of-type(2) {
+    color: #86efac !important;
+}
+body.dark-mode .truck-legend span:nth-of-type(3) {
+    color: #fca5a5 !important;
+}
+body.dark-mode #truck-pagination-controls {
+    background-color: #334155 !important;
+}
+body.dark-mode #save-manager button,
+body.dark-mode #truck-pagination-controls button,
+body.dark-mode .collapse-trucks-button {
+    border: 1px solid #94a3b8 !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+}
 
 /* 4. Navigation Tabs */
 body.dark-mode .tab-btn { background-color: #334155; color: #cbd5e1; border-color: #475569; }
@@ -551,6 +609,10 @@ body.dark-mode label,
 body.dark-mode .app-desc, 
 body.dark-mode .accordion-header {
     color: #cbd5e1;
+}
+body.dark-mode #save-manager label,
+body.dark-mode #last-saved-status {
+    color: #e2e8f0 !important;
 }
 body.dark-mode .app-title,
 body.dark-mode .chevron {
