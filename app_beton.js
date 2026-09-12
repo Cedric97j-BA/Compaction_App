@@ -1,4 +1,4 @@
-const APP_VERSION = 'v1.1.0.7g';
+const APP_VERSION = 'v1.1.0.7h';
 
 // ========================================== //
 // 1. NAVIGATION ET INTERFACE GLOBALE         //
@@ -763,6 +763,7 @@ function loadReport() {
                 let rawVal = truckInfo.remarquesList || truckInfo.remarqueSelect || '';
                 rmInput.value = rawVal.split(',').map(s => s.trim()).filter(s => s !== "").join(',');
             }
+            updateTruckColor(card);
         });
         calculateTotals();
     }
