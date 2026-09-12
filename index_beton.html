@@ -33,7 +33,7 @@
         <div style="display: flex; flex-direction: column; gap: 5px;">
             <h1 style="margin: 0; font-size: 1.5rem; letter-spacing: 0.5px;">Bétonnage et Échantillonnage</h1>
             <div>
-                <span id="app-version" style="font-size: 0.95rem; font-weight: bold; background: #73968c; padding: 3px 10px; border-radius: 12px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);">v1.1.0.7i</span>
+                <span id="app-version" style="font-size: 0.95rem; font-weight: bold; background: #73968c; padding: 3px 10px; border-radius: 12px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);">v1.1.0.7h</span>
             </div>
         </div>
 
@@ -465,7 +465,7 @@
         <!-- SECTION : GRILLE DES CAMIONS (Dynamique) -->
         <div class="form-section">
             <h3>Registre des Camions</h3>
-            <p style="font-size: 0.9rem; color: #475569; margin-bottom: 15px;">* Les camions testés apparaîtront en <span style="color: #0284c7; font-weight: bold;">bleu</span>, et les camions échantillonnés en <span style="color: #16a34a; font-weight: bold;">vert</span>.</p>
+            <p style="font-size: 0.9rem; color: #475569; margin-bottom: 15px;">* Les camions testés apparaîtront en <span style="color: #16a34a; font-weight: bold;">vert</span>, et les camions échantillonnés en <span style="color: #0284c7; font-weight: bold;">bleu</span>.</p>
 
             <!-- CONTRÔLES DE PAGINATION -->
             <div id="truck-pagination-controls" style="display: none; justify-content: space-between; align-items: center; background: #e2e8f0; padding: 10px; border-radius: 6px; margin-bottom: 15px;">
@@ -519,10 +519,10 @@
 
         <!-- TEMPLATE INVISIBLE POUR LES CAMIONS -->
         <template id="truck-template">
-            <div class="truck-card" style="border-radius: 6px; margin-bottom: 15px; overflow: hidden;">
+            <div class="truck-card" style="border: 1px solid #0284c7; border-radius: 6px; margin-bottom: 15px; background: #f8fafc; overflow: hidden;">
                 
                 <!-- EN-TÊTE RÉTRACTABLE (ACCORDÉON) -->
-                <div class="accordion-header truck-accordion-header" onclick="toggleAccordion(this)">
+                <div class="accordion-header" onclick="toggleAccordion(this)" style="background-color: #97c6b980;">
                     <div>
                         <span style="font-weight: bold;">Ligne #<span class="truck-number-display"></span></span>
                         <span class="truck-header-summary" style="margin-left: 10px; color: #475569; font-weight: normal; font-size: 0.9rem;"></span>

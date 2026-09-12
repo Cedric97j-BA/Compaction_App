@@ -1,4 +1,4 @@
-const APP_VERSION = 'v1.1.0.7i';
+const APP_VERSION = 'v1.1.0.7h';
 
 // ========================================== //
 // 1. NAVIGATION ET INTERFACE GLOBALE         //
@@ -154,14 +154,18 @@ function updateTruckColor(card) {
     
     const hasTest = air1 !== '' || air2 !== '' || slump1 !== '' || slump2 !== '';
 
-    card.classList.remove('status-refused', 'status-sampled', 'status-tested');
-
     if (isRefused) {
-        card.classList.add('status-refused');
+        card.style.borderColor = '#dc2626'; // Rouge
+        card.style.backgroundColor = '#fef2f2';
     } else if (isSampled) {
-        card.classList.add('status-sampled');
+        card.style.borderColor = '#0284c7'; // Bleu
+        card.style.backgroundColor = '#f0f9ff';
     } else if (hasTest) {
-        card.classList.add('status-tested');
+        card.style.borderColor = '#16a34a'; // Vert
+        card.style.backgroundColor = '#f0fdf4';
+    } else {
+        card.style.borderColor = '#94a3b8'; // Gris (Défaut)
+        card.style.backgroundColor = '#f8fafc'; 
     }
 }
 
@@ -692,7 +696,18 @@ function loadReport() {
     if (!reportDataStr) return;
 
     clearForm();
-    const reportData = JSON.parse(reportDataStr);
+    let reportData;
+    try {
+        reportData = JSON.parse(reportDataStr);
+    } catch (error) {
+        console.error("Rapport béton invalide", error);
+        showToast("Ce rapport est invalide ou provient d'une ancienne version.", "error");
+        return;
+    }
+    if (!reportData || typeof reportData !== 'object' || !reportData.static) {
+        showToast("Ce rapport est invalide ou provient d'une ancienne version.", "error");
+        return;
+    }
 
     if (reportData.static) {
         for (const [id, value] of Object.entries(reportData.static)) {
