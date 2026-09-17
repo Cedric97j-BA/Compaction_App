@@ -59,29 +59,32 @@ function addTask(data = null) {
 
     const clone = template.content.cloneNode(true);
     const card = clone.querySelector('.task-card');
+    const descArea = card.querySelector('.task-desc');
     
     // Remplissage si on charge une sauvegarde
     if (data) {
         card.querySelector('.task-start').value = data.start || '';
         card.querySelector('.task-end').value = data.end || '';
-        const descArea = card.querySelector('.task-desc');
         descArea.value = data.desc || '';
-        
-        // Ajustement automatique de la hauteur au chargement si du texte est présent
-        setTimeout(() => {
-            descArea.style.height = 'auto';
-            descArea.style.height = (descArea.scrollHeight + 2) + 'px';
-        }, 0);
     }
     
     // Ajustement dynamique de la hauteur lors de la frappe
-    const textarea = card.querySelector('.task-desc');
-    textarea.addEventListener('input', function() {
+    descArea.addEventListener('input', function() {
         this.style.height = 'auto';
         this.style.height = (this.scrollHeight + 2) + 'px';
     });
     
+    // 1. On insère d'abord la carte dans la page (sinon la hauteur est 0)
     container.appendChild(clone);
+    
+    // 2. Ensuite, on ajuste la hauteur avec un petit délai de 50ms
+    if (data && data.desc) {
+        setTimeout(() => {
+            descArea.style.height = 'auto';
+            descArea.style.height = (descArea.scrollHeight + 2) + 'px';
+        }, 50);
+    }
+    
     updateTaskNumbers();
     calculateTotalHours();
     if (data) updateTaskSummary(card.querySelector('.task-start')); 
@@ -513,7 +516,7 @@ function splitTextIntelligently(text, maxChars = 92) {
 
 // 2. Lit les cartes et construit le tableau exact des lignes à imprimer
 function buildPrintableRows() {
-    const maxChars = 92;
+    const maxChars = 120; // Limite de caractères par ligne pour le PDF
     const printableRows = [];
     const taskCards = document.querySelectorAll('.task-card');
     
