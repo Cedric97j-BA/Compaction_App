@@ -1,7 +1,6 @@
 // ========================================== //
 // 1. NAVIGATION ET INTERFACE GLOBALE         //
 // ========================================== //
-<<<<<<< HEAD
 /*
 document.addEventListener('DOMContentLoaded', () => {
     const logoEl = document.getElementById('main-logo');
@@ -20,8 +19,6 @@ document.addEventListener('DOMContentLoaded', () => {
 // ========================================== //
 // 1. NAVIGATION ET INTERFACE GLOBALE         //
 // ========================================== //
-=======
->>>>>>> d17517b27abd5949a69917655ed65dd687051b38
 
 document.addEventListener('DOMContentLoaded', () => {
     const logoEl = document.getElementById('main-logo');
@@ -29,15 +26,12 @@ document.addEventListener('DOMContentLoaded', () => {
         logoEl.src = LOGO_BASE64;
         logoEl.style.display = 'block';
     }
-<<<<<<< HEAD
     
     // NOUVEAU : Lecture de l'interrupteur global du Hub
     if (localStorage.getItem('darkMode') === 'enabled') {
         document.body.classList.add('dark-mode');
     }
 
-=======
->>>>>>> d17517b27abd5949a69917655ed65dd687051b38
     updateDropdown();
     
     // Initialise avec une première carte de tâche vide
