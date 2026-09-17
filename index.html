@@ -84,7 +84,7 @@
 </button>
 
 <div>
-    <span id="app-version" style="position: fixed; bottom: 15px; right: 15px; z-index: 9999; font-size: 0.95rem; font-weight: bold; padding: 3px 10px; border-radius: 12px; ">v1.1.0.9d</span>
+    <span id="app-version" style="position: fixed; bottom: 15px; right: 15px; z-index: 9999; font-size: 0.95rem; font-weight: bold; padding: 3px 10px; border-radius: 12px; ">v1.1.0.9f</span>
 </div>
 
 <div style="text-align: center; margin: 12px auto 24px;">
@@ -95,7 +95,7 @@
 </div>
  
 <script>
-    const APP_VERSION = 'v1.1.0.9d';
+    const APP_VERSION = 'v1.1.0.9f';
 
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
@@ -185,77 +185,82 @@
     }
 
     async function forceAppUpdate() {
-        if (!navigator.onLine) {
-            alert("Vous devez être connecté à Internet (Wi-Fi ou LTE) pour mettre à jour.");
-            return;
+    // 1. Conservation de votre alerte d'origine
+    if (!navigator.onLine) {
+        alert("Vous devez être connecté à Internet (Wi-Fi ou LTE) pour mettre à jour.");
+        return;
+    }
+
+    // 2. Conservation de votre demande de confirmation
+    if (!confirm("L'application va rechercher et installer la dernière version. Continuer ?")) {
+        return;
+    }
+
+    const button = document.querySelector('button[onclick="forceAppUpdate()"]');
+    if (button) {
+        button.disabled = true;
+        button.textContent = "Recherche de mise à jour...";
+    }
+
+    try {
+        if (!('serviceWorker' in navigator)) {
+            throw new Error("Service Worker non disponible");
         }
 
-        if (confirm("L'application va télécharger la dernière version. Continuer ?")) {
-            const button = document.querySelector('button[onclick="forceAppUpdate()"]');
-            if (button) {
-                button.disabled = true;
-                button.textContent = "Téléchargement...";
-            }
+        const registration = await navigator.serviceWorker.ready;
+        let updateFound = false;
 
-            try {
-                if (!('serviceWorker' in navigator)) {
-                    throw new Error("Service Worker non disponible");
+        // 3. Nouvelle logique : on écoute silencieusement s'il y a du nouveau
+        registration.addEventListener('updatefound', () => {
+            updateFound = true;
+            if (button) button.textContent = "Téléchargement...";
+            const newWorker = registration.installing;
+            
+            newWorker.addEventListener('statechange', () => {
+                if (newWorker.state === 'installed') {
+                    // Force l'installation immédiate
+                    newWorker.postMessage({ type: 'SKIP_WAITING' });
                 }
-
-                const registration = await navigator.serviceWorker.ready;
-                let updateFound = false;
-                const activation = new Promise((resolve, reject) => {
-                    const timeout = setTimeout(() => {
-                        reject(new Error("Délai de mise à jour dépassé"));
-                    }, 30000);
-
-                    const finish = () => {
-                        clearTimeout(timeout);
-                        resolve();
-                    };
-
-                    const watchWorker = (worker) => {
-                        if (!worker) return;
-                        updateFound = true;
-                        if (worker.state === 'activated') {
-                            finish();
-                        } else {
-                            worker.addEventListener('statechange', () => {
-                                if (worker.state === 'activated') finish();
-                            });
-                        }
-                    };
-
-                    if (registration.waiting) {
-                        registration.waiting.postMessage({ type: 'SKIP_WAITING' });
-                        watchWorker(registration.waiting);
-                    }
-                    if (registration.installing) watchWorker(registration.installing);
-                    registration.addEventListener('updatefound', () => watchWorker(registration.installing), { once: true });
-                    navigator.serviceWorker.addEventListener('controllerchange', finish, { once: true });
-                });
-                await registration.update();
-                if (registration.installing || registration.waiting || updateFound) {
-                    await activation;
-                } else {
-                    await new Promise((resolve) => setTimeout(resolve, 1000));
+                if (newWorker.state === 'activated') {
+                    // Recharge uniquement quand le nouveau code est prêt
+                    sessionStorage.setItem('updateResult', `Mise à jour terminée. Version active : ${APP_VERSION}`);
+                    window.location.reload();
                 }
+            });
+        }, { once: true });
 
-                sessionStorage.setItem(
-                    'updateResult',
-                    updateFound ? `Mise à jour terminée. Version active : ${APP_VERSION}` : `L'application est déjà à jour (${APP_VERSION}).`
-                );
-                window.location.reload();
-            } catch (error) {
-                console.error("Échec de la mise à jour", error);
+        // On déclenche la vérification avec le serveur
+        await registration.update();
+
+        // 4. L'amélioration : si le serveur dit qu'on a déjà la bonne version
+        setTimeout(() => {
+            if (!updateFound && !registration.waiting) {
+                showToast(`L'application est déjà à jour (${APP_VERSION}).`, "info");
                 if (button) {
                     button.disabled = false;
                     button.textContent = "Mettre à jour l'application";
                 }
-                showToast("La mise à jour a échoué. Réessayez avec une connexion stable.", "error");
+            } 
+            // Sécurité : si un travailleur attendait déjà en arrière-plan
+            else if (registration.waiting && !updateFound) {
+                if (button) button.textContent = "Installation...";
+                registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+                navigator.serviceWorker.addEventListener('controllerchange', () => {
+                    sessionStorage.setItem('updateResult', `Mise à jour terminée. Version active : ${APP_VERSION}`);
+                    window.location.reload();
+                }, { once: true });
             }
+        }, 1000);
+
+    } catch (error) {
+        console.error("Échec de la mise à jour", error);
+        if (button) {
+            button.disabled = false;
+            button.textContent = "Mettre à jour l'application";
         }
+        showToast("La mise à jour a échoué. Réessayez avec une connexion stable.", "error");
     }
+}
 
     // 1. IL FAUT LA FONCTION TOAST ICI AUSSI POUR LE HUB
     function showToast(message, type = 'success') {
