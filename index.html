@@ -84,7 +84,7 @@
 </button>
 
 <div>
-    <span id="app-version" style="position: fixed; bottom: 15px; right: 15px; z-index: 9999; font-size: 0.95rem; font-weight: bold; padding: 3px 10px; border-radius: 12px; ">v1.1.0.9i</span>
+    <span id="app-version" style="position: fixed; bottom: 15px; right: 15px; z-index: 9999; font-size: 0.95rem; font-weight: bold; padding: 3px 10px; border-radius: 12px; ">v1.1.0.9j</span>
 </div>
 
 <div style="text-align: center; margin: 12px auto 24px;">
@@ -95,7 +95,7 @@
 </div>
  
 <script>
-    const APP_VERSION = 'v1.1.0.9i';
+    const APP_VERSION = 'v1.1.0.9j';
 
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
@@ -185,13 +185,11 @@
     }
 
     async function forceAppUpdate() {
-    // 1. Conservation de votre alerte d'origine
     if (!navigator.onLine) {
         alert("Vous devez être connecté à Internet (Wi-Fi ou LTE) pour mettre à jour.");
         return;
     }
 
-    // 2. Conservation de votre demande de confirmation
     if (!confirm("L'application va rechercher et installer la dernière version. Continuer ?")) {
         return;
     }
@@ -207,10 +205,15 @@
             throw new Error("Service Worker non disponible");
         }
 
+        // 1. CORRECTION ANDROID : On force le re-téléchargement du sw.js en contournant le cache HTTP
+        const registrations = await navigator.serviceWorker.getRegistrations();
+        for (let reg of registrations) {
+            await reg.update(); // Force la vérification serveur en ignorant le cache local
+        }
+
         const registration = await navigator.serviceWorker.ready;
         let updateFound = false;
 
-        // 3. Nouvelle logique : on écoute silencieusement s'il y a du nouveau
         registration.addEventListener('updatefound', () => {
             updateFound = true;
             if (button) button.textContent = "Téléchargement...";
@@ -218,21 +221,16 @@
             
             newWorker.addEventListener('statechange', () => {
                 if (newWorker.state === 'installed') {
-                    // Force l'installation immédiate
                     newWorker.postMessage({ type: 'SKIP_WAITING' });
                 }
                 if (newWorker.state === 'activated') {
-                    // Recharge uniquement quand le nouveau code est prêt (avec la bonne variable de version)
                     sessionStorage.setItem('updateResult', `Mise à jour terminée. Version active : ${APP_VERSION}`);
                     window.location.reload();
                 }
             });
         }, { once: true });
 
-        // On déclenche la vérification avec le serveur
-        await registration.update();
-
-        // 4. L'amélioration : si le serveur dit qu'on a déjà la bonne version
+        // Petit délai pour laisser le temps au navigateur de déclencher 'updatefound' si un nouveau sw.js est trouvé
         setTimeout(() => {
             if (!updateFound && !registration.waiting) {
                 showToast(`L'application est déjà à jour (${APP_VERSION}).`, "info");
@@ -240,9 +238,7 @@
                     button.disabled = false;
                     button.textContent = "Mettre à jour l'application";
                 }
-            } 
-            // Sécurité : si un travailleur attendait déjà en arrière-plan
-            else if (registration.waiting && !updateFound) {
+            } else if (registration.waiting && !updateFound) {
                 if (button) button.textContent = "Installation...";
                 registration.waiting.postMessage({ type: 'SKIP_WAITING' });
                 navigator.serviceWorker.addEventListener('controllerchange', () => {
@@ -250,7 +246,7 @@
                     window.location.reload();
                 }, { once: true });
             }
-        }, 1000);
+        }, 1500);
 
     } catch (error) {
         console.error("Échec de la mise à jour", error);

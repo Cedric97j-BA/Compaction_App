@@ -669,6 +669,12 @@ async function exportToPDF() {
                 try { formF3.getTextField('desc-text-01').setText(document.getElementById(textA)?.value || ""); } catch(e){}
                 try { formF3.getTextField('desc-text-02').setText(document.getElementById(textB)?.value || ""); } catch(e){}
 
+                // 1. CORRECTIF CRITIQUE : Toujours générer le texte AVANT les images
+                try {
+                    const fontF3 = await f3Doc.embedFont(PDFLib.StandardFonts.Helvetica);
+                    formF3.updateFieldAppearances(fontF3);
+                } catch(e) {}
+
                 const drawImg = async (inputId, pdfFieldId) => {
                     const hiddenInput = document.getElementById(inputId);
                     if (hiddenInput && hiddenInput.value) {
@@ -683,23 +689,20 @@ async function exportToPDF() {
                             // Retirer le champ pour supprimer la bordure Foxit
                             formF3.removeField(pdfFieldId);
 
-                            // Conversion propre en binaire (ArrayBuffer)
+                            // 2. RETOUR À LA MÉTHODE DIRECTE (iOS bloque sur atob() avec de grosses photos)
                             const base64String = hiddenInput.value.split(',')[1];
-                            const imageBytes = getBuffer(base64String);
-
                             let pdfImage;
+                            
                             try {
                                 if (hiddenInput.value.includes('image/png')) {
-                                    pdfImage = await f3Doc.embedPng(imageBytes);
+                                    pdfImage = await f3Doc.embedPng(base64String);
                                 } else {
-                                    pdfImage = await f3Doc.embedJpg(imageBytes);
+                                    pdfImage = await f3Doc.embedJpg(base64String);
                                 }
                             } catch (err) {
-                                try {
-                                    pdfImage = await f3Doc.embedJpg(imageBytes);
-                                } catch (e2) {
-                                    pdfImage = await f3Doc.embedPng(imageBytes);
-                                }
+                                // Fallback croisé au cas où l'encodage ment
+                                try { pdfImage = await f3Doc.embedJpg(base64String); } 
+                                catch (e2) { pdfImage = await f3Doc.embedPng(base64String); }
                             }
 
                             const scaled = pdfImage.scaleToFit(rect.width, rect.height);
@@ -713,15 +716,9 @@ async function exportToPDF() {
                     }
                 };
 
-                // Dessin des images d'abord
+                // 3. ON DESSINE LES IMAGES EN TOUT DERNIER (par-dessus la page mise à jour)
                 await drawImg(imgA, 'desc-img-01');
                 await drawImg(imgB, 'desc-img-02');
-
-                // Application des apparences textuelles ensuite
-                try {
-                    const fontF3 = await f3Doc.embedFont(PDFLib.StandardFonts.Helvetica);
-                    formF3.updateFieldAppearances(fontF3);
-                } catch(e) {}
 
                 const copiedPages = await mergedPdf.copyPages(f3Doc, [0]);
                 mergedPdf.addPage(copiedPages[0]);
