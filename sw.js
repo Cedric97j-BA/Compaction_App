@@ -1,4 +1,4 @@
-const CACHE_NAME = 'hub-inspection-v1.1.0.9h'; 
+const CACHE_NAME = 'hub-inspection-v1.1.0.9i'; 
 
 const APP_ASSETS = [
     './',
