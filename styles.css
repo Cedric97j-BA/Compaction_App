@@ -125,6 +125,10 @@ h4 {
 /* INPUTS ET CONTRÔLES                       */
 /* ========================================= */
 .input-group {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end; /* Force l'input à rester aligné vers le bas */
+    height: 100%; /* Permet d'utiliser tout l'espace disponible de la grille */
     margin-bottom: 15px;
 }
 
@@ -669,4 +673,16 @@ body.dark-mode button[onclick^="removeTask"],
 body.dark-mode button[onclick^="clearImage"] {
     border: 1px solid #94a3b8 !important;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.35) !important;
+}
+
+/* --- CORRECTION DES INPUTS HEURE POUR TOUS LES APPAREILS APPLE (iPAD inclus) --- */
+input[type="time"], input[type="date"] {
+    -webkit-appearance: none !important;
+    appearance: none !important;
+    min-height: 44px !important;
+    box-sizing: border-box !important;
+}
+input[type="time"]::-webkit-clear-button,
+input[type="time"]::-webkit-inner-spin-button {
+    display: none !important;
 }

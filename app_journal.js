@@ -1,24 +1,6 @@
 // ========================================== //
 // 1. NAVIGATION ET INTERFACE GLOBALE         //
 // ========================================== //
-/*
-document.addEventListener('DOMContentLoaded', () => {
-    const logoEl = document.getElementById('main-logo');
-    if (logoEl && typeof LOGO_BASE64 !== 'undefined') {
-        logoEl.src = LOGO_BASE64;
-        logoEl.style.display = 'block';
-    }
-    updateDropdown();
-    
-    // Initialise avec une première carte de tâche vide
-    if (document.getElementById('tasks-container') && document.getElementById('tasks-container').children.length === 0) {
-        addTask();
-    }
-}); */
-
-// ========================================== //
-// 1. NAVIGATION ET INTERFACE GLOBALE         //
-// ========================================== //
 
 document.addEventListener('DOMContentLoaded', () => {
     const logoEl = document.getElementById('main-logo');
@@ -622,6 +604,12 @@ async function exportToPDF() {
         // Méthode standard, propre et directe pour la page F1
         try { formF1.getTextField('f1-page-number').setText(currentPage.toString()); } catch(e){}
         
+        // CORRECTIF ANDROID : Forcer le dessin des polices pour F1
+        try {
+            const fontF1 = await f1Doc.embedFont(PDFLib.StandardFonts.Helvetica);
+            formF1.updateFieldAppearances(fontF1);
+        } catch(e) {}
+
         const f1Pages = await mergedPdf.copyPages(f1Doc, [0]);
         mergedPdf.addPage(f1Pages[0]);
         currentPage++;
@@ -645,6 +633,12 @@ async function exportToPDF() {
             // Méthode standard pour F2
             try { formF2.getTextField('f2-page-number').setText(currentPage.toString()); } catch(e){}
             
+            // CORRECTIF ANDROID : Forcer le dessin des polices pour F2
+            try {
+                const fontF2 = await f2Doc.embedFont(PDFLib.StandardFonts.Helvetica);
+                formF2.updateFieldAppearances(fontF2);
+            } catch(e) {}
+
             const f2Pages = await mergedPdf.copyPages(f2Doc, [0]);
             mergedPdf.addPage(f2Pages[0]);
             currentPage++;
@@ -678,6 +672,9 @@ async function exportToPDF() {
                             const widgetPageRef = widget.dict.get(PDFLib.PDFName.of('P'));
                             let targetPage = f3PagesArr.find(p => p.ref === widgetPageRef) || f3PagesArr[0];
 
+                            // CORRECTIF FOXIT : Retirer le champ pour enlever la bordure
+                            formF3.removeField(pdfFieldId);
+
                             const base64String = hiddenInput.value.split(',')[1];
                             const pdfImage = await f3Doc.embedJpg(base64String);
 
@@ -692,6 +689,12 @@ async function exportToPDF() {
 
                 await drawImg(imgA, 'desc-img-01');
                 await drawImg(imgB, 'desc-img-02');
+
+                // CORRECTIF ANDROID : Forcer le dessin des polices pour F3
+                try {
+                    const fontF3 = await f3Doc.embedFont(PDFLib.StandardFonts.Helvetica);
+                    formF3.updateFieldAppearances(fontF3);
+                } catch(e) {}
 
                 const copiedPages = await mergedPdf.copyPages(f3Doc, [0]);
                 mergedPdf.addPage(copiedPages[0]);
