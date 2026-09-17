@@ -84,7 +84,7 @@
 </button>
 
 <div>
-    <span id="app-version" style="position: fixed; bottom: 15px; right: 15px; z-index: 9999; font-size: 0.95rem; font-weight: bold; padding: 3px 10px; border-radius: 12px; ">v1.1.0.9g</span>
+    <span id="app-version" style="position: fixed; bottom: 15px; right: 15px; z-index: 9999; font-size: 0.95rem; font-weight: bold; padding: 3px 10px; border-radius: 12px; ">v1.1.0.9h</span>
 </div>
 
 <div style="text-align: center; margin: 12px auto 24px;">
@@ -95,7 +95,7 @@
 </div>
  
 <script>
-    const APP_VERSION = 'v1.1.0.9f';
+    const APP_VERSION = 'v1.1.0.9h';
 
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
@@ -222,7 +222,7 @@
                     newWorker.postMessage({ type: 'SKIP_WAITING' });
                 }
                 if (newWorker.state === 'activated') {
-                    // Recharge uniquement quand le nouveau code est prêt
+                    // Recharge uniquement quand le nouveau code est prêt (avec la bonne variable de version)
                     sessionStorage.setItem('updateResult', `Mise à jour terminée. Version active : ${APP_VERSION}`);
                     window.location.reload();
                 }

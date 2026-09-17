@@ -64,8 +64,22 @@ function addTask(data = null) {
     if (data) {
         card.querySelector('.task-start').value = data.start || '';
         card.querySelector('.task-end').value = data.end || '';
-        card.querySelector('.task-desc').value = data.desc || '';
+        const descArea = card.querySelector('.task-desc');
+        descArea.value = data.desc || '';
+        
+        // Ajustement automatique de la hauteur au chargement si du texte est présent
+        setTimeout(() => {
+            descArea.style.height = 'auto';
+            descArea.style.height = (descArea.scrollHeight + 2) + 'px';
+        }, 0);
     }
+    
+    // Ajustement dynamique de la hauteur lors de la frappe
+    const textarea = card.querySelector('.task-desc');
+    textarea.addEventListener('input', function() {
+        this.style.height = 'auto';
+        this.style.height = (this.scrollHeight + 2) + 'px';
+    });
     
     container.appendChild(clone);
     updateTaskNumbers();
@@ -687,14 +701,15 @@ async function exportToPDF() {
                     }
                 };
 
-                await drawImg(imgA, 'desc-img-01');
-                await drawImg(imgB, 'desc-img-02');
-
-                // CORRECTIF ANDROID : Forcer le dessin des polices pour F3
+                // CORRECTIF ANDROID : On applique les apparences de texte AVANT de dessiner les images
                 try {
                     const fontF3 = await f3Doc.embedFont(PDFLib.StandardFonts.Helvetica);
                     formF3.updateFieldAppearances(fontF3);
                 } catch(e) {}
+
+                // On dessine les images par-dessus pour qu'elles restent visibles sur tous les appareils
+                await drawImg(imgA, 'desc-img-01');
+                await drawImg(imgB, 'desc-img-02');
 
                 const copiedPages = await mergedPdf.copyPages(f3Doc, [0]);
                 mergedPdf.addPage(copiedPages[0]);
