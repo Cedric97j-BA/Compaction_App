@@ -669,12 +669,13 @@ async function exportToPDF() {
                 try { formF3.getTextField('desc-text-01').setText(document.getElementById(textA)?.value || ""); } catch(e){}
                 try { formF3.getTextField('desc-text-02').setText(document.getElementById(textB)?.value || ""); } catch(e){}
 
-                // 1. CORRECTIF CRITIQUE : Toujours générer le texte AVANT les images
+                // FIX ANDROID TEXT: Apply appearances BEFORE drawing images
                 try {
                     const fontF3 = await f3Doc.embedFont(PDFLib.StandardFonts.Helvetica);
                     formF3.updateFieldAppearances(fontF3);
                 } catch(e) {}
 
+                // ORIGINAL WORKING IMAGE LOGIC
                 const drawImg = async (inputId, pdfFieldId) => {
                     const hiddenInput = document.getElementById(inputId);
                     if (hiddenInput && hiddenInput.value) {
@@ -686,37 +687,18 @@ async function exportToPDF() {
                             const widgetPageRef = widget.dict.get(PDFLib.PDFName.of('P'));
                             let targetPage = f3PagesArr.find(p => p.ref === widgetPageRef) || f3PagesArr[0];
 
-                            // Retirer le champ pour supprimer la bordure Foxit
-                            formF3.removeField(pdfFieldId);
-
-                            // 2. RETOUR À LA MÉTHODE DIRECTE (iOS bloque sur atob() avec de grosses photos)
                             const base64String = hiddenInput.value.split(',')[1];
-                            let pdfImage;
-                            
-                            try {
-                                if (hiddenInput.value.includes('image/png')) {
-                                    pdfImage = await f3Doc.embedPng(base64String);
-                                } else {
-                                    pdfImage = await f3Doc.embedJpg(base64String);
-                                }
-                            } catch (err) {
-                                // Fallback croisé au cas où l'encodage ment
-                                try { pdfImage = await f3Doc.embedJpg(base64String); } 
-                                catch (e2) { pdfImage = await f3Doc.embedPng(base64String); }
-                            }
+                            const pdfImage = await f3Doc.embedJpg(base64String);
 
                             const scaled = pdfImage.scaleToFit(rect.width, rect.height);
                             const centerX = rect.x + (rect.width - scaled.width) / 2;
                             const centerY = rect.y + (rect.height - scaled.height) / 2;
 
                             targetPage.drawImage(pdfImage, { x: centerX, y: centerY, width: scaled.width, height: scaled.height });
-                        } catch (e) {
-                            console.warn("Erreur insertion image :", e);
-                        }
+                        } catch (e) {}
                     }
                 };
 
-                // 3. ON DESSINE LES IMAGES EN TOUT DERNIER (par-dessus la page mise à jour)
                 await drawImg(imgA, 'desc-img-01');
                 await drawImg(imgB, 'desc-img-02');
 
