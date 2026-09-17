@@ -385,6 +385,19 @@ function getRemarksDict() {
     return dict;
 }
 
+function updateRemarkLetterState() {
+    const dictKeys = Object.keys(getRemarksDict());
+    const assignedKeys = Array.from(document.querySelectorAll('.truck-remarques-list'))
+        .flatMap(input => input.value.split(','))
+        .map(value => value.trim())
+        .filter(value => /^[A-Z]$/.test(value));
+    const allKeys = [...dictKeys, ...assignedKeys];
+    const maxCode = allKeys.length > 0
+        ? Math.max(...allKeys.map(letter => letter.charCodeAt(0)))
+        : 64;
+    currentRemarkCharCode = Math.min(maxCode + 1, 91);
+}
+
 function rebuildGlobalRemarks(dict) {
     let lines = [];
     Object.keys(dict).sort().forEach(k => {
@@ -457,12 +470,11 @@ function createNewRemark(btn) {
             return;
         }
     } else {
-        // CALCUL DYNAMIQUE : Repart à 'A' si la boîte est vide, sinon prend la lettre suivante
-        let nextCharCode = 65; 
-        let keys = Object.keys(dict);
-        if (keys.length > 0) {
-            let maxCode = Math.max(...keys.map(k => k.charCodeAt(0)));
-            nextCharCode = maxCode + 1;
+        updateRemarkLetterState();
+        let nextCharCode = currentRemarkCharCode;
+        if (nextCharCode >= 91) {
+            showToast("Toutes les lettres de remarque disponibles sont utilisées.", "info");
+            return;
         }
         letterToAdd = String.fromCharCode(nextCharCode);
         
@@ -776,6 +788,7 @@ function loadReport() {
             }
             updateTruckColor(card);
         });
+        updateRemarkLetterState();
         calculateTotals();
     }
 
@@ -833,31 +846,23 @@ function scrollToSection(sectionId) {
 
 function saveReport(isDuplicate = false) {
     let saveKey = currentActiveReportKey;
-    let baseName = "";
 
-    // On récupère le nom existant s'il y en a un
-    if (saveKey) {
-        try {
-            const oldData = JSON.parse(localStorage.getItem(saveKey));
-            if (oldData && oldData.displayName) baseName = oldData.displayName;
-        } catch(e) {}
-    }
+    // 1. On recalcule TOUJOURS le nom de base avec les champs actuels
+    const noProjet = document.getElementById('global-no-projet').value.trim() || 'SANS-NUMERO';
+    const rawDate = document.getElementById('global-date').value || new Date().toISOString().split('T')[0];
+    const resistance = document.getElementById('f2-spec-resistance')?.value.trim() || 'Mix';
+    const techName = document.getElementById('f2-tech-name')?.value || document.getElementById('f1-tech-name')?.value || '';
+    const techInitials = techName.split(' ').filter(n => n).map(n => n[0].toUpperCase()).join('') || 'TECH';
+    
+    let baseName = `englobe_${rawDate}_${noProjet}_${resistance}_${techInitials}`;
 
+    // 2. Demande un nom SEULEMENT si c'est un nouveau rapport ou une copie
     if (!saveKey || isDuplicate) {
-        const noProjet = document.getElementById('global-no-projet').value.trim() || 'SANS-NUMERO';
-        const rawDate = document.getElementById('global-date').value || new Date().toISOString().split('T')[0];
-        const resistance = document.getElementById('f2-spec-resistance')?.value.trim() || 'Mix';
-        const techName = document.getElementById('f2-tech-name')?.value || document.getElementById('f1-tech-name')?.value || '';
-        const techInitials = techName.split(' ').filter(n => n).map(n => n[0].toUpperCase()).join('') || 'TECH';
-        
-        const defaultBaseName = `englobe_${rawDate}_${noProjet}_${resistance}_${techInitials}`;
         const promptMsg = isDuplicate ? "Nom pour la COPIE du rapport :" : "Nom de sauvegarde du rapport (modifiable) :";
-        const promptDefault = (isDuplicate && baseName) ? `${baseName}_copie` : defaultBaseName;
-
-        let userPromptName = prompt(promptMsg, promptDefault);
+        let userPromptName = prompt(promptMsg, baseName);
         if (userPromptName === null) return; 
         
-        baseName = userPromptName.trim() || defaultBaseName;
+        baseName = userPromptName.trim() || baseName;
         if (!baseName.startsWith('englobe_')) baseName = `englobe_${baseName}`;
         
         // Création de l'identifiant unique invisible

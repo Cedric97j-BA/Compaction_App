@@ -369,31 +369,22 @@ function loadReport() {
 
 function saveReport(isDuplicate = false) {
     let saveKey = currentActiveReportKey;
-    let baseName = "";
 
-    // On récupère le nom existant s'il y en a un
-    if (saveKey) {
-        try {
-            const oldData = JSON.parse(localStorage.getItem(saveKey));
-            if (oldData && oldData.displayName) baseName = oldData.displayName;
-        } catch(e) {}
-    }
+    // 1. On recalcule TOUJOURS le nom de base avec les champs actuels
+    const noProjet = document.getElementById('global-no-projet').value.trim() || 'SANS-NUMERO';
+    const rawDate = document.getElementById('global-date').value || new Date().toISOString().split('T')[0];
+    const techName = document.getElementById('sig-englobe-nom')?.value || '';
+    const techInitials = techName.split(' ').filter(n => n).map(n => n[0].toUpperCase()).join('') || 'TECH';
+    
+    let baseName = `compactage_${rawDate}_${noProjet}_${techInitials}`;
 
-    // Demande un nom SEULEMENT si c'est un nouveau rapport ou une duplication
+    // 2. Demande un nom SEULEMENT si c'est un nouveau rapport ou une copie
     if (!saveKey || isDuplicate) {
-        const noProjet = document.getElementById('global-no-projet').value.trim() || 'SANS-NUMERO';
-        const rawDate = document.getElementById('global-date').value || new Date().toISOString().split('T')[0];
-        const techName = document.getElementById('sig-englobe-nom')?.value || '';
-        const techInitials = techName.split(' ').filter(n => n).map(n => n[0].toUpperCase()).join('') || 'TECH';
-        
-        const defaultBaseName = `compactage_${rawDate}_${noProjet}_${techInitials}`;
         const promptMsg = isDuplicate ? "Nom pour la COPIE du rapport :" : "Nom de sauvegarde du rapport :";
-        const promptDefault = (isDuplicate && baseName) ? `${baseName}_copie` : defaultBaseName;
-
-        let userPromptName = prompt(promptMsg, promptDefault);
+        let userPromptName = prompt(promptMsg, baseName);
         if (!userPromptName) return; 
         
-        baseName = userPromptName.trim() || defaultBaseName;
+        baseName = userPromptName.trim() || baseName;
         if (!baseName.startsWith('compactage_')) baseName = `compactage_${baseName}`;
 
         // Création de l'identifiant unique invisible

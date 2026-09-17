@@ -368,6 +368,18 @@ button[onclick^="add"]:hover {
         line-height: 1.15 !important;
         margin-bottom: 4px !important;
     }
+    .truck-remarks-controls {
+        flex-wrap: wrap !important;
+    }
+    .truck-remarks-controls .truck-remarques-list {
+        flex: 1 1 100% !important;
+        min-width: 100% !important;
+        width: 100% !important;
+    }
+    .truck-remarks-controls button {
+        flex: 1 1 auto !important;
+        min-height: 42px !important;
+    }
     .truck-card > div:has(input[type="checkbox"]) {
         align-items: center !important;
         flex-wrap: wrap !important;
@@ -630,4 +642,31 @@ body.dark-mode [style*="background"] {
 body.dark-mode header img {
     filter: invert(1);
     mix-blend-mode: screen;
+}
+
+/* ========================================== */
+/* OVERRIDES MODE SOMBRE : JOURNAL DE CHANTIER*/
+/* ========================================== */
+body.dark-mode .task-card {
+    background-color: #1e293b !important;
+    border-color: #0f766e !important;
+}
+body.dark-mode .task-header {
+    background-color: #115e59 !important;
+    border-bottom-color: #0f766e !important;
+}
+body.dark-mode .task-header span {
+    color: #ccfbf1 !important;
+}
+body.dark-mode .task-duration {
+    background-color: #475569 !important;
+    color: #f8fafc !important;
+}
+
+/* --- BORDURES VISIBLES POUR LES BOUTONS DU JOURNAL (MODE NUIT) --- */
+body.dark-mode button[onclick="addTask()"],
+body.dark-mode button[onclick^="removeTask"],
+body.dark-mode button[onclick^="clearImage"] {
+    border: 1px solid #94a3b8 !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.35) !important;
 }
