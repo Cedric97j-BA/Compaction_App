@@ -84,7 +84,7 @@
 </button>
 
 <div>
-    <span id="app-version" style="position: fixed; bottom: 15px; right: 15px; z-index: 9999; font-size: 0.95rem; font-weight: bold; padding: 3px 10px; border-radius: 12px; ">v1.1.0.9k</span>
+    <span id="app-version" style="position: fixed; bottom: 15px; right: 15px; z-index: 9999; font-size: 0.95rem; font-weight: bold; padding: 3px 10px; border-radius: 12px; ">v1.2.0.0</span>
 </div>
 
 <div style="text-align: center; margin: 12px auto 24px;">
@@ -92,10 +92,13 @@
         Afficher l'état hors ligne et les diagnostics
     </button>
     <div id="diagnostics-panel" hidden style="max-width: 620px; margin: 12px auto 0; padding: 12px; text-align: left; background: #f1f5f9; color: #334155; border-radius: 6px; font-size: 0.9rem; white-space: pre-line;"></div>
+    <button onclick="window.location.href='changelog.html'" style="margin-top: 10px; font-size: 0.9em; padding: 8px 15px; opacity: 0.8;">
+    🕒 Historique des mises à jour
+    </button>
 </div>
  
 <script>
-    const APP_VERSION = 'v1.1.0.9k';
+    const APP_VERSION = 'v1.2.0.0';
 
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {

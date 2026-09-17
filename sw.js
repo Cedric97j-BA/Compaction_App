@@ -1,4 +1,4 @@
-const CACHE_NAME = 'hub-inspection-v1.1.0.9k'; 
+const CACHE_NAME = 'hub-inspection-v1.2.0.0'; 
 
 const APP_ASSETS = [
     './',
@@ -8,6 +8,7 @@ const APP_ASSETS = [
     './index_echsolgra.html',
     './index_journal.html',
     './index_planche.html',
+    './changelog.html',
     './styles.css',
     './app_beton.js',
     './app_compaction.js',
