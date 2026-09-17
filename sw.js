@@ -1,4 +1,4 @@
-const CACHE_NAME = 'hub-inspection-v1.1.0.9b';
+const CACHE_NAME = 'hub-inspection-v1.1.0.9c';
 
 // These files are required for the application to start and work offline.
 const APP_ASSETS = [
@@ -8,18 +8,21 @@ const APP_ASSETS = [
     './index_compaction.html',
     './index_echsolgra.html',
     './index_planche.html',
+    './index_journal.html',
     './styles.css',
     './app.js',
     './app_beton.js',
     './app_compaction.js',
     './app_echsolgra.js',
     './app_planche.js',
+    './app_journal.js',
     './pdf_templates.js',
     './logo.png',
     './logo_beton.png',
     './logo_compaction.png',
     './logo_echsolgra.png',
     './logo_planche.png',
+    './logo_journal.png',
     './fonts/tahoma.ttf'
 ];
 

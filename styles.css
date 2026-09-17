@@ -368,6 +368,18 @@ button[onclick^="add"]:hover {
         line-height: 1.15 !important;
         margin-bottom: 4px !important;
     }
+    .truck-remarks-controls {
+        flex-wrap: wrap !important;
+    }
+    .truck-remarks-controls .truck-remarques-list {
+        flex: 1 1 100% !important;
+        min-width: 100% !important;
+        width: 100% !important;
+    }
+    .truck-remarks-controls button {
+        flex: 1 1 auto !important;
+        min-height: 42px !important;
+    }
     .truck-card > div:has(input[type="checkbox"]) {
         align-items: center !important;
         flex-wrap: wrap !important;
