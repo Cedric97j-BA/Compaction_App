@@ -279,7 +279,7 @@ input[type="checkbox"] {
     color: #0284c7;
 }
 .chevron.rotated {
-    transform: rotate(180deg);
+    transform: rotate(-90deg);
 }
 
 /* ========================================= */

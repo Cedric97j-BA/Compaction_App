@@ -523,11 +523,13 @@
                 
                 <!-- EN-TÊTE RÉTRACTABLE (ACCORDÉON) -->
                 <div class="accordion-header" onclick="toggleAccordion(this)" style="background-color: #97c6b980;">
+                    <!--<span class="chevron">▼</span>-->
+                    <span class="chevron" style="transition: transform 0.2s;">▼</span>
                     <div>
                         <span style="font-weight: bold;">Ligne #<span class="truck-number-display"></span></span>
                         <span class="truck-header-summary" style="margin-left: 10px; color: #475569; font-weight: normal; font-size: 0.9rem;"></span>
                     </div>
-                    <span class="chevron">▼</span>
+                    
                     <button type="button" onclick="deleteTruckCard(this, event)" style="background: none; border: none; color: #ef4444; font-weight: bold; font-size: 1.2rem; cursor: pointer; padding: 0 5px;">✖</button>
                 </div>
                 
@@ -540,11 +542,18 @@
                         <div style="flex: 1;"><label>Volume (m³)</label><input type="number" class="truck-volume" step="0.1"></div>
                     </div>
                     
-                    <!-- Heures -->
+                    <!-- Heures 
                     <div style="display: flex; gap: 10px; margin-bottom: 10px;">
                         <div style="flex: 1;"><label>Chargement</label><input type="time" class="truck-time-mix"></div>
                         <div style="flex: 1;"><label>Début coulée</label><input type="time" class="truck-time-start"></div>
                         <div style="flex: 1;"><label>Fin coulée</label><input type="time" class="truck-time-end"></div>
+                    </div> -->
+
+                    <!-- Heures (Fix iOS avec Grid) -->
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 10px;">
+                        <div><label>Chargement</label><input type="time" class="truck-time-mix" style="width: 100%;"></div>
+                        <div><label>Début</label><input type="time" class="truck-time-start" style="width: 100%;"></div>
+                        <div><label>Fin</label><input type="time" class="truck-time-end" style="width: 100%;"></div>
                     </div>
 
                     <!-- Ajouts -->
@@ -621,90 +630,7 @@
                 </div>
             </div>
         </template>
-
-        <template>
-            <div class="truck-card" style="border: 1px solid #0284c7; border-radius: 6px; padding: 10px; margin-bottom: 15px; background: #f8fafc;">
-                <div style="font-weight: bold; margin-bottom: 10px; color: #0284c7;">Ligne #<span class="truck-number-display"></span></div>
-                  
-                <!-- Identifiants et Quantité -->
-                <div style="display: flex; gap: 10px; margin-bottom: 10px;">
-                    <div style="flex: 1;"><label>Camion n°</label><input type="text" class="truck-id"></div>
-                    <div style="flex: 2;"><label>Bordereau n°</label><input type="text" class="truck-bordereau"></div>
-                    <div style="flex: 1;"><label>Volume (m³)</label><input type="number" class="truck-volume" step="0.1"></div>
-                </div>
-                
-                <!-- Heures -->
-                <div style="display: flex; gap: 10px; margin-bottom: 10px;">
-                    <div style="flex: 1;"><label>Chargement</label><input type="time" class="truck-time-mix"></div>
-                    <div style="flex: 1;"><label>Début coulée</label><input type="time" class="truck-time-start"></div>
-                    <div style="flex: 1;"><label>Fin coulée</label><input type="time" class="truck-time-end"></div>
-                </div>
-
-                <!-- Ajouts -->
-                <div style="display: flex; gap: 10px; margin-bottom: 10px;">
-                    <div style="flex: 1;"><label>Eau ajoutée (l/m³)</label><input type="number" class="truck-water" placeholder="Qté"></div>
-                    <div style="flex: 1;"><label>Superplastifiant (l/m³)</label><input type="number" class="truck-plast" placeholder="Qté"></div>
-                </div>
-
-                <small  style="color: #242930; font-size: 0.8rem; display: block; margin-top: 3px; margin-bottom: 5px; text-align: center; margin-left: auto; margin-right: auto; max-width: 600px;">                           
-                    Notez le deuxième test si le premier est non-conforme pour la teneur en air et l'affaissement.
-                </small>
-
-                <!-- Teneur en air et Température -->
-                <div style="display: flex; gap: 10px; margin-bottom: 10px;">
-                    <div style="flex: 1;"><label>Teneur Air 1 (%)</label><input type="number" class="truck-air1" step="0.1"></div>
-                    <div style="flex: 1;"><label>Teneur Air 2 (%)</label><input type="number" class="truck-air2" step="0.1"></div>
-                    <div style="flex: 1;"><label>Temp. (°C)</label><input type="number" class="truck-temp" step="0.1"></div>
-                </div>
-
-                <!-- Affaissement avec cases à cocher SP -->
-                <div style="display: flex; gap: 10px; margin-bottom: 10px; background: #fff; padding: 8px; border-radius: 4px; border: 1px solid #d1d5db;">
-                    <div style="flex: 1;">
-                        <label>Affaissement 1 (mm)</label>
-                        <div style="display: flex; align-items: center; gap: 5px;">
-                            <input type="number" class="truck-slump1" style="flex: 1;" placeholder="">
-                            <label style="font-size: 0.85rem; margin: 0; display: flex; align-items: center; gap: 2px;"><input type="checkbox" class="truck-slump1-sp"> √ SP</label>
-                        </div>
-                    </div>
-                    <div style="flex: 1;">
-                        <label>Affaissement 2 (mm)</label>
-                        <div style="display: flex; align-items: center; gap: 5px;">
-                            <input type="number" class="truck-slump2" style="flex: 1;" placeholder="">
-                            <label style="font-size: 0.85rem; margin: 0; display: flex; align-items: center; gap: 2px;"><input type="checkbox" class="truck-slump2-sp"> √ SP</label>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Toggles : Refusé & Échantillon -->
-                <div class="truck-toggles-container" style="margin-top: 10px; padding-top: 10px; border-top: 1px dashed #ccc;">
-                    <!-- Appelle toggleRefuse pour changer la couleur de la carte -->
-                    <label style="color: #dc2626;"><input type="checkbox" class="truck-refuse" onchange="toggleRefuse(this)"> 🚫 Camion refusé</label>
-                    
-                    <label style="margin-top: 5px;"><input type="checkbox" class="truck-sample-check" onchange="toggleSampleFields(this)"> 🧪 Échantillon prélevé</label>
-                    
-                    <!-- Champs d'échantillon cachés par défaut (alignés côte à côte) -->
-                    <div class="truck-sample-fields" style="display: none; background: #e0f2fe; padding: 10px; margin-top: 8px; border-radius: 4px;">
-                        <div style="display: flex; gap: 10px;">
-                            <div style="flex: 1;"><label>Numéro de l'échantillon</label><input type="text" class="truck-sample-num"></div>
-                            <div style="flex: 1;"><label>Heure du prélèvement</label><input type="time" class="truck-sample-time"></div>
-                        </div>
-                    </div>
-
-                    <!-- Système de remarques Multiples -->
-                    <span style="font-size: 0.85rem; color: #64748b; margin-top: 15px; margin-bottom: -5px; display: block;">Insérer une remarque pour ce camion ci-dessous :</span>
-                    <div class="input-group" style="margin-top: 10px;">
-                        <label>Remarques attachées</label>
-                        <div style="display: flex; gap: 5px;">
-                            <input type="text" class="truck-remarques-list" readonly placeholder="Aucune" style="flex: 1; background: #f3f4f6; font-weight: bold; color: var(--primary);">
-                            <button type="button" onclick="createNewRemark(this)" style="background: #0284c7; color: white; border: none; border-radius: 4px; padding: 0 10px; font-weight: bold; cursor: pointer;">+ Ajouter</button>
-                            <button type="button" onclick="clearTruckRemarks(this)" style="background: #ef4444; color: white; border: none; border-radius: 4px; padding: 0 10px; font-weight: bold; cursor: pointer;">Effacer</button>
-                        </div>
-                        <!-- Preview direct des remarques dans la carte -->
-                        <div class="truck-remarks-preview" style="margin-top: 8px; font-size: 0.85rem; color: #475569; line-height: 1.4;"></div>
-                    </div>
-                </div>
-            </div>
-        </template>
+        
 
     <!-- ========================================== -->
     <!-- ONGLET 3 : FORMULAIRE 3                    -->

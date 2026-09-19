@@ -121,7 +121,7 @@ function toggleAccordion(headerElement) {
     content.classList.toggle('active');
     chevron.classList.toggle('rotated');
 }
-
+/*
 // Fonction pour afficher le numéro de camion et de bordereau dans l'en-tête
 function updateTruckHeader(inputElement) {
     const card = inputElement.closest('.truck-card');
@@ -133,6 +133,28 @@ function updateTruckHeader(inputElement) {
     
     if (summary) {
         summary.textContent = `| Camion: ${truckId} | Bordereau: ${bordereau}`;
+    }
+} */
+
+// Fonction pour afficher le numéro, bordereau et échantillon dans l'en-tête
+function updateTruckHeader(element) {
+    const card = element.closest('.truck-card');
+    if (!card) return;
+    
+    const truckId = card.querySelector('.truck-id').value || '---';
+    const bordereau = card.querySelector('.truck-bordereau').value || '---';
+    const summary = card.querySelector('.truck-header-summary');
+    
+    // Vérifier l'échantillon
+    const isSampled = card.querySelector('.truck-sample-check').checked;
+    const sampleNum = card.querySelector('.truck-sample-num').value || '?';
+    
+    if (summary) {
+        let texte = `| Camion: ${truckId} | Bordereau: ${bordereau}`;
+        if (isSampled) {
+            texte += ` | Éch: ${sampleNum}`;
+        }
+        summary.textContent = texte;
     }
 }
 
@@ -196,6 +218,7 @@ function toggleSampleFields(checkbox) {
         }
     }
     updateTruckColor(card);
+    updateTruckHeader(checkbox);
 }
 
 function toggleRefuse(checkbox) {
@@ -297,6 +320,7 @@ function collapseAllTrucks() {
 // 3. MOTEUR MATHÉMATIQUE ET LIVE SYNC        //
 // ========================================== //
 
+/*
 ['input', 'change'].forEach(eventType => {
     document.addEventListener(eventType, function(e) {
         if (e.target.classList.contains('truck-volume')) {
@@ -309,6 +333,27 @@ function collapseAllTrucks() {
             e.target.id === 'f1-tech-name' || 
             e.target.id === 'global-date') {
             syncForm3UI();
+        }
+    });
+}); */
+
+['input', 'change'].forEach(eventType => {
+    document.addEventListener(eventType, function(e) {
+        if (e.target.classList.contains('truck-volume')) {
+            calculateTotals();
+        }
+        
+        if (e.target.classList.contains('truck-sample-num') || 
+            e.target.classList.contains('truck-sample-time') || 
+            e.target.id === 'f2-tech-name' || 
+            e.target.id === 'f1-tech-name' || 
+            e.target.id === 'global-date') {
+            syncForm3UI();
+        }
+
+        // NOUVEAU: Si on tape dans le champ Numéro d'échantillon, on force la mise à jour de l'en-tête
+        if (e.target.classList.contains('truck-sample-num')) {
+            updateTruckHeader(e.target);
         }
     });
 });
