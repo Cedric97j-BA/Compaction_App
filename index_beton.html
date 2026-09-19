@@ -522,15 +522,14 @@
             <div class="truck-card" style="border: 1px solid #0284c7; border-radius: 6px; margin-bottom: 15px; background: #f8fafc; overflow: hidden;">
                 
                 <!-- EN-TÊTE RÉTRACTABLE (ACCORDÉON) -->
-                <div class="accordion-header" onclick="toggleAccordion(this)" style="background-color: #97c6b980;">
-                    <!--<span class="chevron">▼</span>-->
-                    <span class="chevron" style="transition: transform 0.2s;">▼</span>
-                    <div>
-                        <span style="font-weight: bold;">Ligne #<span class="truck-number-display"></span></span>
-                        <span class="truck-header-summary" style="margin-left: 10px; color: #475569; font-weight: normal; font-size: 0.9rem;"></span>
+                <div class="accordion-header" onclick="toggleAccordion(this)" style="background-color: #97c6b980; padding-top: 10px; padding-bottom: 10px;">
+                    <span class="chevron" style="margin-left: 0px; margin-right: 10px;">▼</span>
+                    <div style="flex: 1; overflow: hidden; text-align: left;">
+                        <div style="font-weight: bold; font-size: 1.05rem;">Ligne #<span class="truck-number-display"></span></div>
+                        <div class="truck-header-summary" style="color: #475569; font-weight: normal; font-size: 0.85rem; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"></div>
                     </div>
                     
-                    <button type="button" onclick="deleteTruckCard(this, event)" style="background: none; border: none; color: #ef4444; font-weight: bold; font-size: 1.2rem; cursor: pointer; padding: 0 5px;">✖</button>
+                    <button type="button" onclick="deleteTruckCard(this, event)" style="background: none; border: none; color: #ef4444; font-weight: bold; font-size: 1.2rem; cursor: pointer; padding: 0 5px; margin-left: 10px;">✖</button>
                 </div>
                 
                 <!-- CONTENU DU FORMULAIRE -->
@@ -542,19 +541,21 @@
                         <div style="flex: 1;"><label>Volume (m³)</label><input type="number" class="truck-volume" step="0.1"></div>
                     </div>
                     
-                    <!-- Heures 
-                    <div style="display: flex; gap: 10px; margin-bottom: 10px;">
-                        <div style="flex: 1;"><label>Chargement</label><input type="time" class="truck-time-mix"></div>
-                        <div style="flex: 1;"><label>Début coulée</label><input type="time" class="truck-time-start"></div>
-                        <div style="flex: 1;"><label>Fin coulée</label><input type="time" class="truck-time-end"></div>
-                    </div> -->
-
-                    <!-- Heures (Fix iOS avec Grid) -->
-                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 10px;">
-                        <div><label>Chargement</label><input type="time" class="truck-time-mix" style="width: 100%;"></div>
-                        <div><label>Début</label><input type="time" class="truck-time-start" style="width: 100%;"></div>
-                        <div><label>Fin</label><input type="time" class="truck-time-end" style="width: 100%;"></div>
-                    </div>
+                    <!-- Heures (Correctif iOS Safari avec min-width: 0 et box-sizing) -->
+                    <div style="display: flex; gap: 10px; margin-bottom: 10px; width: 100%;">
+                        <div style="flex: 1; min-width: 0;">
+                            <label style="font-size: 0.85rem; white-space: nowrap;">Chargement</label>
+                            <input type="time" class="truck-time-mix" style="width: 100%; min-width: 0; box-sizing: border-box;">
+                        </div>
+                        <div style="flex: 1; min-width: 0;">
+                            <label style="font-size: 0.85rem; white-space: nowrap;">Début</label>
+                            <input type="time" class="truck-time-start" style="width: 100%; min-width: 0; box-sizing: border-box;">
+                        </div>
+                        <div style="flex: 1; min-width: 0;">
+                            <label style="font-size: 0.85rem; white-space: nowrap;">Fin</label>
+                            <input type="time" class="truck-time-end" style="width: 100%; min-width: 0; box-sizing: border-box;">
+                        </div>
+                    </div> 
 
                     <!-- Ajouts -->
                     <div style="display: flex; gap: 10px; margin-bottom: 10px;">
@@ -598,14 +599,15 @@
                         <label style="margin-top: 5px;"><input type="checkbox" class="truck-sample-check" onchange="toggleSampleFields(this)"> Échantillon prélevé</label>
                         
                         <div class="truck-sample-fields" style="display: none; background: #e0f2fe; padding: 10px; margin-top: 8px; border-radius: 4px;">
-                            <div style="display: flex; gap: 10px;">
-                                <div style="flex: 1;"><label>Numéro de l'échantillon</label><input type="text" class="truck-sample-num"></div>
-                                <div style="flex: 1;"><label>Heure du prélèvement</label><input type="time" class="truck-sample-time"></div>
+                            <div style="display: flex; gap: 10px; width: 100%;">
+                                <div style="flex: 1; min-width: 0;"><label>Numéro de l'échantillon</label><input type="text" class="truck-sample-num" style="width: 100%; box-sizing: border-box;"></div>
+                                <div style="flex: 1; min-width: 0;"><label>Heure du prélèvement</label><input type="time" class="truck-sample-time" style="width: 100%; min-width: 0; box-sizing: border-box;"></div>
                             </div>
                         </div>
 
                         <!-- Système de remarques Multiples -->
-                        <!--<div class="input-group" style="margin-top: 10px;">
+                        <span style="font-size: 0.85rem; color: #64748b; margin-top: 15px; margin-bottom: -5px; display: block;">Insérer une remarque pour ce camion ci-dessous :</span>
+                        <div class="input-group" style="margin-top: 10px;">
                             <label>Remarques attachées</label>
                             <div class="truck-remarks-controls" style="display: flex; gap: 5px;">
                                 <input type="text" class="truck-remarques-list" readonly placeholder="Aucune" style="flex: 1; background: #f3f4f6; font-weight: bold; color: var(--primary);">
@@ -613,23 +615,12 @@
                                 <button type="button" onclick="clearTruckRemarks(this)" style="background: #ef4444; color: white; border: none; border-radius: 4px; padding: 0 10px; font-weight: bold; cursor: pointer;">Effacer</button>
                             </div>
                             <div class="truck-remarks-preview" style="margin-top: 8px; font-size: 0.85rem; color: #475569; line-height: 1.4;"></div>
-                        </div>-->
-                    </div>
-
-                    <!-- Système de remarques Multiples -->
-                    <span style="font-size: 0.85rem; color: #64748b; margin-top: 15px; margin-bottom: -5px; display: block;">Insérer une remarque pour ce camion ci-dessous :</span>
-                    <div class="input-group" style="margin-top: 10px;">
-                        <label>Remarques attachées</label>
-                        <div class="truck-remarks-controls" style="display: flex; gap: 5px;">
-                            <input type="text" class="truck-remarques-list" readonly placeholder="Aucune" style="flex: 1; background: #f3f4f6; font-weight: bold; color: var(--primary);">
-                            <button type="button" onclick="createNewRemark(this)" style="background: #0284c7; color: white; border: none; border-radius: 4px; padding: 0 10px; font-weight: bold; cursor: pointer;">+ Ajouter</button>
-                            <button type="button" onclick="clearTruckRemarks(this)" style="background: #ef4444; color: white; border: none; border-radius: 4px; padding: 0 10px; font-weight: bold; cursor: pointer;">Effacer</button>
                         </div>
-                        <div class="truck-remarks-preview" style="margin-top: 8px; font-size: 0.85rem; color: #475569; line-height: 1.4;"></div>
                     </div>
                 </div>
             </div>
         </template>
+        
         
 
     <!-- ========================================== -->
