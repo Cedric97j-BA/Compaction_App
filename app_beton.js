@@ -147,7 +147,7 @@ function updateTruckHeader(element) {
     
     // Vérifier l'échantillon
     const isSampled = card.querySelector('.truck-sample-check').checked;
-    const sampleNum = card.querySelector('.truck-sample-num').value || '?';
+    const sampleNum = card.querySelector('.truck-sample-num').value || '---';
     
     if (summary) {
         let texte = `| Camion: ${truckId} | Bordereau: ${bordereau}`;
