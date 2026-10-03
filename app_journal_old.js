@@ -124,7 +124,7 @@ function updateLastSavedStatus(timestamp = Date.now()) {
     if (status) {
         const date = new Date(timestamp);
         const dateText = date.toLocaleDateString('fr-CA');
-        const timeText = date.toLocaleTimeString('fr-CA', { hour: '2-digit', minute: '2-digit', hour12: false }).replace(':', 'H');
+        const timeText = date.toLocaleTimeString('fr-CA', { hour: '2-digit', minute: '2-digit', hour12: false }).replace(':', 'h');
         status.textContent = `Dernière sauvegarde : ${dateText} - ${timeText}`;
     }
 }

@@ -73,7 +73,7 @@
                 <div class="input-group"><label>Date</label><input type="date" id="img-date-1"></div>
                 <div class="input-group"><label>Chaînage</label><input type="text" id="img-chn-1"></div>
                 <div class="input-group" style="grid-column: 1 / -1;"><label>Identification</label><input type="text" id="img-id-1"></div>
-                <div class="input-group" style="grid-column: 1 / -1;"><label>Remarques</label><textarea id="img-rem-1" rows="2" style="width: 100%;"></textarea></div>
+                <div class="input-group" style="grid-column: 1 / -1;"><label>Remarques</label><textarea id="img-rem-1" style="width: 100%;"></textarea></div>
             </div>
             <input type="file" id="desc-img-01" accept="image/*" onchange="encodeImage(this, '01')" style="font-size: 0.85rem; margin-bottom: 10px;">
             <input type="hidden" id="desc-img-01-base64">
@@ -92,7 +92,7 @@
                 <div class="input-group"><label>Date</label><input type="date" id="img-date-2"></div>
                 <div class="input-group"><label>Chaînage</label><input type="text" id="img-chn-2"></div>
                 <div class="input-group" style="grid-column: 1 / -1;"><label>Identification</label><input type="text" id="img-id-2"></div>
-                <div class="input-group" style="grid-column: 1 / -1;"><label>Remarques</label><textarea id="img-rem-2" rows="2" style="width: 100%;"></textarea></div>
+                <div class="input-group" style="grid-column: 1 / -1;"><label>Remarques</label><textarea id="img-rem-2" style="width: 100%;"></textarea></div>
             </div>
             <input type="file" id="desc-img-02" accept="image/*" onchange="encodeImage(this, '02')" style="font-size: 0.85rem; margin-bottom: 10px;">
             <input type="hidden" id="desc-img-02-base64">
@@ -111,9 +111,9 @@
                 <div class="input-group"><label>Date</label><input type="date" id="img-date-3"></div>
                 <div class="input-group"><label>Chaînage</label><input type="text" id="img-chn-3"></div>
                 <div class="input-group" style="grid-column: 1 / -1;"><label>Identification</label><input type="text" id="img-id-3"></div>
-                <div class="input-group" style="grid-column: 1 / -1;"><label>Remarques</label><textarea id="img-rem-3" rows="2" style="width: 100%;"></textarea></div>
+                <div class="input-group" style="grid-column: 1 / -1;"><label>Remarques</label><textarea id="img-rem-3" style="width: 100%;"></textarea></div>
             </div>
-            <input type="file" id="desc-img-03" accept="image/*" onchange="encodeImage(this, '03')" style="font-size: 0.85rem; margin-bottom: 10px;">
+            <input type="file" id="desc-img-03" accept="image/*" onchange="encodeImage(this, '03')" style="font-size: 0.85rem; margin-bottom: 10px; max-height: 250px">
             <input type="hidden" id="desc-img-03-base64">
             <div>
                 <img id="desc-img-03-preview" src="" style="display: none; max-width: 100%; max-height: 250px; border: 1px solid #cbd5e1; border-radius: 4px; margin-bottom: 5px;">
@@ -130,7 +130,7 @@
                 <div class="input-group"><label>Date</label><input type="date" id="img-date-4"></div>
                 <div class="input-group"><label>Chaînage</label><input type="text" id="img-chn-4"></div>
                 <div class="input-group" style="grid-column: 1 / -1;"><label>Identification</label><input type="text" id="img-id-4"></div>
-                <div class="input-group" style="grid-column: 1 / -1;"><label>Remarques</label><textarea id="img-rem-4" rows="2" style="width: 100%;"></textarea></div>
+                <div class="input-group" style="grid-column: 1 / -1;"><label>Remarques</label><textarea id="img-rem-4" style="width: 100%;"></textarea></div>
             </div>
             <input type="file" id="desc-img-04" accept="image/*" onchange="encodeImage(this, '04')" style="font-size: 0.85rem; margin-bottom: 10px;">
             <input type="hidden" id="desc-img-04-base64">
@@ -152,6 +152,7 @@
 
 <script src="pdf_templates.js"></script>
 <script src="app_photo.js"></script>
+
 <button type="button" onclick="saveReport()" style="position: fixed; bottom: 15px; right: 15px; z-index: 9999; background: #10b981; color: white; border: none; width: 60px; height: 60px; border-radius: 50%; box-shadow: 0 4px 10px rgba(0,0,0,0.3); font-size: 1.5rem; cursor: pointer; display: flex; justify-content: center; align-items: center;">💾</button>
 
 </body>
