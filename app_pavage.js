@@ -58,7 +58,7 @@ function buildEssaisMatrix() {
             
             <div class="input-group" style="margin-bottom: 15px;">
                 <label>Description de l'endroit</label>
-                <input type="text" id="essais-endroit-${i}" placeholder="Ex: Ch 12+345">
+                <input type="text" id="essais-${i}-endroit" placeholder="Ex: Ch 12+345">
             </div>
 
             <label style="display:block; font-size: 0.9rem; font-weight: bold; margin-bottom: 5px; color: #64748b;">Lectures Nucléodensimètre (M.V.)</label>
@@ -170,7 +170,7 @@ function calculateEssais() {
     };
 
     let moyNuc = setAvg('essais-moy', globalMoyNuc, true); // Arrondi à l'unité
-    setAvg('essais-epaisseur', globalEpais, false);
+    setAvg('essais-epaisseur', globalEpais, true);
     
     // Moyenne des densités carottes
     let moyCarot = null;
@@ -499,9 +499,13 @@ async function exportToPDF() {
                     el.checked ? form.getCheckBox(name).check() : form.getCheckBox(name).uncheck();
                 } else if (el.type !== 'file' && el.type !== 'hidden') {
                     let valToPrint = el.value || "";
+                    // Convertit les points en virgules strictement pour les champs numériques et calculés
+                    if (el.type === 'number' || el.id.match(/(med|int|moy|conc|c_nuc|c_carot|carottes|epaisseur|ecart|dens-max|essais-\d-[1-5]$)/)) {
+                        valToPrint = String(valToPrint).replace(/\./g, ',');
+                    }/*
                     if (el.type === 'number' || el.id.includes('med') || el.id.includes('int') || el.id.includes('moy') || el.id.includes('conc') || el.id.includes('c_nuc') || el.id.includes('c_carot') || el.id.includes('carottes')) {
                         if (valToPrint.includes('.')) valToPrint = valToPrint.replace('.', ',');
-                    }
+                    }*/
                     form.getTextField(name).setText(valToPrint);
                 }
             } catch (e) {} 
