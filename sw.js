@@ -1,4 +1,4 @@
-const CACHE_NAME = 'hub-inspection-v1.3.1.0c'; 
+const CACHE_NAME = 'hub-inspection-v1.3.1.0d'; 
 
 const APP_ASSETS = [
     './',
@@ -10,6 +10,7 @@ const APP_ASSETS = [
     './index_journal_old.html',
     './index_planche.html',
     './index_photo.html',
+    './index_pavage.html',
     './changelog.html',
     './styles.css',
     './app_beton.js',
@@ -19,6 +20,7 @@ const APP_ASSETS = [
     './app_journal_old.js',
     './app_planche.js',
     './app_photo.js',
+    './app_pavage.js',
     './pdf_templates.js',
     './logo.png',
     './logo_beton.png',

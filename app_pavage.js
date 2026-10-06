@@ -207,7 +207,7 @@ function calculateEssais() {
 
     if (moyRawCompNuc !== null && moyRawCompCarot !== null) {
         // Le calcul en ratio décimal * 100 garantit que (-0.01 * 100) donne -1.0%
-        let concPour = (moyRawCompNuc - moyRawCompCarot) * 100;
+        let concPour = (moyRawCompCarot - moyRawCompNuc) * 100;
         document.getElementById('conc-pour').value = concPour.toFixed(1);
     } else {
         document.getElementById('conc-pour').value = "";
