@@ -71,7 +71,10 @@
                 <div class="input-group"><label>Projet</label><input type="text" id="global-projet"></div>
                 <div class="input-group"><label>Numéro de projet</label><input type="text" id="global-no-projet"></div>
                 <div class="input-group"><label>Endroit (Global)</label><input type="text" id="global-endroit"></div>
-                <div class="input-group"><label>Date de l'intervention</label><input type="date" id="global-date"></div>
+                <div class="input-group">
+                    <label>Date de l'intervention</label>
+                    <input type="date" id="global-date" style="-webkit-appearance: none; min-width: 0; box-sizing: border-box;">
+                </div>
                 <div class="input-group" style="grid-column: 1 / -1;"><label>Nom du technicien</label><input type="text" id="sig-prep-nom"></div>
             </div>
         </div>
@@ -82,25 +85,34 @@
             <div class="grid-2">
                 <div class="input-group"><label>Fournisseur</label><input type="text" id="spec-fournisseur"></div>
                 <div class="input-group"><label>N° Usine</label><input type="text" id="spec-no-usine"></div>
-                <div class="input-group"><label>N° de formule / Lot</label>
-                    <div style="display: flex; gap: 5px;">
-                        <input type="text" id="spec-formule-box" placeholder="Formule" style="flex:1;">
-                        <input type="text" id="spec-lot-box" placeholder="Lot" style="flex:1;">
-                    </div>
-                </div>
+                <div class="input-group"><label>N° de formule</label><input type="text" id="spec-formule"></div>
+                
                 <div class="input-group"><label>Type de mélange / bitume</label>
                     <div style="display: flex; gap: 5px;">
                         <input type="text" id="spec-type-mel" placeholder="Mélange" style="flex:1;">
                         <input type="text" id="spec-type-bit" placeholder="Bitume" style="flex:1;">
                     </div>
                 </div>
+                
                 <div class="input-group"><label>Épaisseur théorique</label><input type="text" id="spec-epaisseur"></div>
                 <div class="input-group"><label>Couche sous-jacente</label><input type="text" id="spec-sous-jac"></div>
                 
-                <div class="input-group" style="background: #e0f2fe; padding: 10px; border-radius: 6px; border: 1px solid #7dd3fc;">
+                <div class="input-group" style="background: #e0f2fe; padding: 10px; border-radius: 6px; border: 1px solid #7dd3fc; grid-column: 1 / -1;">
                     <label style="color: #0369a1;">Densité maximale (Essentiel pour calculs)</label>
-                    <input type="number" step="0.001" id="spec-dens-max" placeholder="Ex: 2.450" oninput="calculateEssais()" style="border-color: #38bdf8;">
+                    <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                        <input type="number" step="0.001" id="spec-dens-max" placeholder="Ex: 2.450" oninput="calculateEssais()" style="border-color: #38bdf8; max-width: 150px;">
+                        
+                        <div style="display: flex; gap: 15px; background: white; padding: 8px 12px; border-radius: 4px; border: 1px solid #38bdf8;">
+                            <label style="display: flex; align-items: center; gap: 5px; cursor: pointer; color: #0369a1; font-weight: bold; margin: 0; font-size: 0.9rem;">
+                                <input type="checkbox" id="spec-formule-box" style="width: 18px; height: 18px; margin: 0;"> Formule
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 5px; cursor: pointer; color: #0369a1; font-weight: bold; margin: 0; font-size: 0.9rem;">
+                                <input type="checkbox" id="spec-lot-box" style="width: 18px; height: 18px; margin: 0;"> Lot
+                            </label>
+                        </div>
+                    </div>
                 </div>
+                
                 <div class="input-group"><label>Densité fournie par</label><input type="text" id="spec-dens-fournie"></div>
             </div>
             
@@ -144,10 +156,8 @@
             <p style="margin: 0; color: #166534; font-weight: bold;">Veuillez entrer les 5 lectures du nucléodensimètre pour chaque emplacement. Les moyennes, médianes et compacités se calculeront automatiquement.</p>
         </div>
 
-        <!-- Matrice de 3 Endroits générée par JS pour alléger le code visuel -->
-        <div id="essais-matrix-container">
-            <!-- La boucle JS injectera le HTML ici -->
-        </div>
+        <!-- Matrice de 3 Endroits générée par JS -->
+        <div id="essais-matrix-container"></div>
 
         <!-- Moyennes Globales & Concordance -->
         <div class="form-section" style="background: #e0e7ff; border: 2px solid #a5b4fc;">

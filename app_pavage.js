@@ -71,7 +71,7 @@ function buildEssaisMatrix() {
             </div>
 
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 10px; margin-bottom: 15px; background: #f1f5f9; padding: 10px; border-radius: 6px;">
-                <div class="input-group"><label>Médiane</label><input type="text" id="essais-${i}-med" readonly style="background: #e2e8f0;"></div>
+                <div class="input-group"><label>Médiane</label><input type="text" id="essais-${i}-med" readonly style="background: #e2e8f0; font-weight: bold;"></div>
                 <div class="input-group"><label>Int. Min</label><input type="text" id="essais-${i}-int-1" readonly style="background: #e2e8f0;"></div>
                 <div class="input-group"><label>Int. Max</label><input type="text" id="essais-${i}-int-2" readonly style="background: #e2e8f0;"></div>
                 <div class="input-group"><label>Moyenne</label><input type="text" id="essais-${i}-moy" readonly style="background: #e2e8f0; font-weight: bold;"></div>
@@ -80,8 +80,8 @@ function buildEssaisMatrix() {
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px;">
                 <div class="input-group"><label>Épaisseur</label><input type="number" step="0.1" id="essais-${i}-epaisseur" oninput="calculateEssais()"></div>
                 <div class="input-group"><label style="color: #b45309;">Densité Carotte</label><input type="number" step="0.001" id="essais-${i}-carottes" oninput="calculateEssais()"></div>
-                <div class="input-group"><label>Comp. Nucléo (%)</label><input type="text" id="essais-${i}-c_nuc" readonly style="background: #e2e8f0;"></div>
-                <div class="input-group"><label>Comp. Carotte (%)</label><input type="text" id="essais-${i}-c_carot" readonly style="background: #e2e8f0;"></div>
+                <div class="input-group"><label>Comp. Nucléo (%)</label><input type="text" id="essais-${i}-c_nuc" readonly style="background: #e2e8f0; font-weight: bold;"></div>
+                <div class="input-group"><label>Comp. Carotte (%)</label><input type="text" id="essais-${i}-c_carot" readonly style="background: #e2e8f0; font-weight: bold;"></div>
             </div>
         </div>
         `;
@@ -97,44 +97,41 @@ function calculateEssais() {
     const densMax = parseFloat(document.getElementById('spec-dens-max').value);
     const validDensMax = !isNaN(densMax) && densMax > 0;
 
-    let globalMoyNuc = [], globalEpais = [], globalCarot = [], globalCompNuc = [], globalCompCarot = [];
+    let globalMoyNuc = [], globalEpais = [], globalCarot = [], globalRawCompNuc = [], globalRawCompCarot = [];
 
     for (let i = 1; i <= 3; i++) {
-        // Collecter les 5 lectures
         let readings = [];
         for (let j = 1; j <= 5; j++) {
             let val = parseFloat(document.getElementById(`essais-${i}-${j}`).value);
             if (!isNaN(val)) readings.push(val);
         }
 
+        let avg = 0, rawCompNuc = null;
+
         if (readings.length > 0) {
-            // Tri pour médiane et Intervalles
             let sorted = [...readings].sort((a, b) => a - b);
             
-            // Médiane
             let med = sorted[Math.floor(sorted.length / 2)];
             if (sorted.length % 2 === 0) med = (sorted[sorted.length / 2 - 1] + sorted[sorted.length / 2]) / 2;
-            document.getElementById(`essais-${i}-med`).value = med.toFixed(3);
             
-            // Intervalles
-            document.getElementById(`essais-${i}-int-1`).value = sorted[0].toFixed(3);
-            document.getElementById(`essais-${i}-int-2`).value = sorted[sorted.length - 1].toFixed(3);
+            // On force l'arrondi à l'unité (sans virgule)
+            document.getElementById(`essais-${i}-med`).value = Math.round(med);
+            document.getElementById(`essais-${i}-int-1`).value = Math.round(sorted[0]);
+            document.getElementById(`essais-${i}-int-2`).value = Math.round(sorted[sorted.length - 1]);
             
-            // Moyenne Nucléo
-            let avg = readings.reduce((sum, val) => sum + val, 0) / readings.length;
-            document.getElementById(`essais-${i}-moy`).value = avg.toFixed(3);
+            avg = Math.round(readings.reduce((sum, val) => sum + val, 0) / readings.length);
+            document.getElementById(`essais-${i}-moy`).value = avg;
             globalMoyNuc.push(avg);
 
-            // Compacité Nucléo
             if (validDensMax) {
-                let compNuc = (avg / densMax) * 100;
-                document.getElementById(`essais-${i}-c_nuc`).value = compNuc.toFixed(1);
-                globalCompNuc.push(compNuc);
+                // Utilisation de la densité de l'eau (997,044) pour un % exact
+                rawCompNuc = avg / (997.044 * densMax);
+                document.getElementById(`essais-${i}-c_nuc`).value = (rawCompNuc * 100).toFixed(1);
+                globalRawCompNuc.push(rawCompNuc);
             } else {
                 document.getElementById(`essais-${i}-c_nuc`).value = "";
             }
         } else {
-            // Vider si aucune lecture
             document.getElementById(`essais-${i}-med`).value = "";
             document.getElementById(`essais-${i}-int-1`).value = "";
             document.getElementById(`essais-${i}-int-2`).value = "";
@@ -142,18 +139,16 @@ function calculateEssais() {
             document.getElementById(`essais-${i}-c_nuc`).value = "";
         }
 
-        // Épaisseur
         let epais = parseFloat(document.getElementById(`essais-${i}-epaisseur`).value);
         if (!isNaN(epais)) globalEpais.push(epais);
 
-        // Densité Carotte & Compacité Carotte (Vérifie si le labo a fourni les résultats)
         let carot = parseFloat(document.getElementById(`essais-${i}-carottes`).value);
         if (!isNaN(carot)) {
             globalCarot.push(carot);
             if (validDensMax) {
-                let compCarot = (carot / densMax) * 100;
-                document.getElementById(`essais-${i}-c_carot`).value = compCarot.toFixed(1);
-                globalCompCarot.push(compCarot);
+                let rawCompCarot = carot / densMax;
+                document.getElementById(`essais-${i}-c_carot`).value = (rawCompCarot * 100).toFixed(1);
+                globalRawCompCarot.push(rawCompCarot);
             } else {
                 document.getElementById(`essais-${i}-c_carot`).value = "";
             }
@@ -163,31 +158,57 @@ function calculateEssais() {
     }
 
     // Calcul des moyennes globales
-    const setAvg = (id, arr, decimals = 1) => {
+    const setAvg = (id, arr, isRoundedToUnit) => {
         if (arr.length > 0) {
             let avg = arr.reduce((sum, val) => sum + val, 0) / arr.length;
-            document.getElementById(id).value = avg.toFixed(decimals);
+            if (isRoundedToUnit) avg = Math.round(avg);
+            document.getElementById(id).value = isRoundedToUnit ? avg : avg.toFixed(1);
             return avg;
         }
         document.getElementById(id).value = "";
         return null;
     };
 
-    let moyNuc = setAvg('essais-moy', globalMoyNuc, 3);
-    setAvg('essais-epaisseur', globalEpais, 1);
-    let moyCarot = setAvg('essais-carottes', globalCarot, 3);
-    let moyCompNuc = setAvg('essais-c_nuc', globalCompNuc, 1);
-    let moyCompCarot = setAvg('essais-c_carot', globalCompCarot, 1);
+    let moyNuc = setAvg('essais-moy', globalMoyNuc, true); // Arrondi à l'unité
+    setAvg('essais-epaisseur', globalEpais, false);
+    
+    // Moyenne des densités carottes
+    let moyCarot = null;
+    if (globalCarot.length > 0) {
+        moyCarot = globalCarot.reduce((sum, val) => sum + val, 0) / globalCarot.length;
+        document.getElementById('essais-carottes').value = moyCarot.toFixed(3);
+    } else {
+        document.getElementById('essais-carottes').value = "";
+    }
+
+    // Affichage des moyennes de compacité
+    let moyRawCompNuc = null, moyRawCompCarot = null;
+    if (globalRawCompNuc.length > 0) {
+        moyRawCompNuc = globalRawCompNuc.reduce((sum, val) => sum + val, 0) / globalRawCompNuc.length;
+        document.getElementById('essais-c_nuc').value = (moyRawCompNuc * 100).toFixed(1);
+    } else {
+        document.getElementById('essais-c_nuc').value = "";
+    }
+
+    if (globalRawCompCarot.length > 0) {
+        moyRawCompCarot = globalRawCompCarot.reduce((sum, val) => sum + val, 0) / globalRawCompCarot.length;
+        document.getElementById('essais-c_carot').value = (moyRawCompCarot * 100).toFixed(1);
+    } else {
+        document.getElementById('essais-c_carot').value = "";
+    }
 
     // Facteurs de Concordance
     if (moyNuc !== null && moyCarot !== null) {
-        document.getElementById('conc-mv').value = (moyCarot - moyNuc).toFixed(3);
+        let concMv = (moyCarot * 997.044) - moyNuc;
+        document.getElementById('conc-mv').value = Math.round(concMv); // Arrondi
     } else {
         document.getElementById('conc-mv').value = "";
     }
 
-    if (moyCompNuc !== null && moyCompCarot !== null) {
-        document.getElementById('conc-pour').value = (moyCompCarot - moyCompNuc).toFixed(1);
+    if (moyRawCompNuc !== null && moyRawCompCarot !== null) {
+        // Le calcul en ratio décimal * 100 garantit que (-0.01 * 100) donne -1.0%
+        let concPour = (moyRawCompNuc - moyRawCompCarot) * 100;
+        document.getElementById('conc-pour').value = concPour.toFixed(1);
     } else {
         document.getElementById('conc-pour').value = "";
     }
@@ -299,7 +320,7 @@ function loadReport() {
             }
         }
 
-        calculateEssais(); // Recalcule l'affichage après chargement
+        calculateEssais();
         currentActiveReportKey = selectedKey; 
         dropdown.value = selectedKey;
         showToast("Rapport chargé avec succès.", "success");
@@ -327,13 +348,8 @@ function saveReport(isDuplicate = false) {
         if (!baseName.startsWith('englobe_')) baseName = `englobe_${baseName}`;
         saveKey = 'PAVAGE_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
     } else {
-        const existingDataStr = localStorage.getItem(saveKey);
-        if (existingDataStr) {
-            try {
-                const existingData = JSON.parse(existingDataStr);
-                if (existingData.displayName) baseName = existingData.displayName;
-            } catch(e) {}
-        }
+        // Mise à jour dynamique intelligente du nom de base pour refléter le no de projet actuel
+        baseName = `englobe_${rawDate}_${noProjet}_CONC-PAVAGE_${techInitials}`;
     }
 
     const staticData = {};
@@ -387,6 +403,38 @@ function deleteReport() {
     updateDropdown(); 
 }
 
+function splitRemarquesIntelligently(text) {
+    if (!text) return [];
+    
+    // Convertit les retours à la ligne ("Enter") en espaces pour assurer une continuité fluide
+    let remaining = text.replace(/\n/g, ' ').trim();
+    const lines = [];
+    const limits = [50, 60, 60, 60, 60]; // Limites dynamiques par ligne
+
+    for (let i = 0; i < limits.length; i++) {
+        if (!remaining) break;
+        
+        let limit = limits[i];
+        
+        if (remaining.length <= limit) {
+            lines.push(remaining);
+            break;
+        }
+        
+        // Cherche le dernier espace avant la limite pour ne pas couper un mot en deux
+        let splitAt = remaining.lastIndexOf(' ', limit);
+        
+        // Si le mot est plus long que la ligne entière, on force la coupure
+        if (splitAt === -1 || splitAt === 0) splitAt = limit; 
+        
+        lines.push(remaining.substring(0, splitAt).trim());
+        remaining = remaining.substring(splitAt).trim();
+    }
+    
+    return lines;
+}
+
+
 // ========================================== //
 // 5. MOTEUR D'EXPORT PDF                     //
 // ========================================== //
@@ -413,7 +461,7 @@ async function exportToPDF() {
         pdfDoc.registerFontkit(fontkit);
         const form = pdfDoc.getForm();
 
-        // 1. Remplissage des champs texte et checkbox
+        /*
         const allInputs = document.querySelectorAll('input[id], textarea[id]');
         allInputs.forEach(el => {
             const name = el.id;
@@ -422,8 +470,36 @@ async function exportToPDF() {
                     el.checked ? form.getCheckBox(name).check() : form.getCheckBox(name).uncheck();
                 } else if (el.type !== 'file' && el.type !== 'hidden') {
                     let valToPrint = el.value || "";
-                    // Conversion des points en virgules pour le format Francophone
-                    if (el.type === 'number' || el.id.includes('med') || el.id.includes('int') || el.id.includes('moy') || el.id.includes('conc') || el.id.includes('c_nuc') || el.id.includes('c_carot')) {
+                    if (el.type === 'number' || el.id.includes('med') || el.id.includes('int') || el.id.includes('moy') || el.id.includes('conc') || el.id.includes('c_nuc') || el.id.includes('c_carot') || el.id.includes('carottes')) {
+                        if (valToPrint.includes('.')) valToPrint = valToPrint.replace('.', ',');
+                    }
+                    form.getTextField(name).setText(valToPrint);
+                }
+            } catch (e) {} 
+        });
+        */
+
+        const allInputs = document.querySelectorAll('input[id], textarea[id]');
+        allInputs.forEach(el => {
+            const name = el.id;
+            try {
+                // Interception du champ de remarques pour le découpage intelligent
+                if (name === 'global-remarques') {
+                    const chunks = splitRemarquesIntelligently(el.value);
+                    try { form.getTextField('remarques1').setText(chunks[0] || ""); } catch(e){}
+                    try { form.getTextField('remarques2').setText(chunks[1] || ""); } catch(e){}
+                    try { form.getTextField('remarques3').setText(chunks[2] || ""); } catch(e){}
+                    try { form.getTextField('remarques4').setText(chunks[3] || ""); } catch(e){}
+                    try { form.getTextField('remarques5').setText(chunks[4] || ""); } catch(e){}
+                    return; // Évite que le code essaie de remplir un champ PDF "global-remarques" qui n'existe pas
+                }
+
+                // Logique standard pour le reste des champs
+                if (el.type === 'checkbox') {
+                    el.checked ? form.getCheckBox(name).check() : form.getCheckBox(name).uncheck();
+                } else if (el.type !== 'file' && el.type !== 'hidden') {
+                    let valToPrint = el.value || "";
+                    if (el.type === 'number' || el.id.includes('med') || el.id.includes('int') || el.id.includes('moy') || el.id.includes('conc') || el.id.includes('c_nuc') || el.id.includes('c_carot') || el.id.includes('carottes')) {
                         if (valToPrint.includes('.')) valToPrint = valToPrint.replace('.', ',');
                     }
                     form.getTextField(name).setText(valToPrint);
@@ -431,7 +507,6 @@ async function exportToPDF() {
             } catch (e) {} 
         });
 
-        // 2. Gestion de la police Tahoma
         try {
             const fontBytes = new Uint8Array(getBuffer(TAHOMA_FONT));
             const tahomaFont = await pdfDoc.embedFont(fontBytes);
@@ -448,7 +523,6 @@ async function exportToPDF() {
         const blob = new Blob([pdfBytes], { type: 'application/pdf' });
         const fileName = `Concordance_${rawDate}_${noProjet}_${techInitials}.pdf`;
 
-        // TÉLÉCHARGEMENT
         const isMacTouch = navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1;
         const isApple = /iPhone|iPad|iPod/i.test(navigator.userAgent) || isMacTouch;
         
