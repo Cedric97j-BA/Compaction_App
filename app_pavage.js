@@ -53,21 +53,21 @@ function buildEssaisMatrix() {
         html += `
         <div class="form-section truck-card">
             <h4 style="color: var(--primary); border-bottom: 1px solid var(--border); padding-bottom: 5px; margin-bottom: 15px; font-weight: bold;">
-                Emplacement / Endroit ${i}
+                Endroit N°${i}
             </h4>
             
             <div class="input-group" style="margin-bottom: 15px;">
                 <label>Description de l'endroit</label>
-                <input type="text" id="essais-${i}-endroit" placeholder="Ex: Ch 12+345">
+                <input type="text" id="essais-${i}-endroit" placeholder="Ex: Chaussée Ouest 12+345 @ 2 m du bord gauche">
             </div>
 
             <label style="display:block; font-size: 0.9rem; font-weight: bold; margin-bottom: 5px; color: #64748b;">Lectures Nucléodensimètre (M.V.)</label>
             <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 15px;">
-                <input type="number" step="0.001" id="essais-${i}-1" oninput="calculateEssais()" placeholder="Lec 1" style="flex: 1; min-width: 80px;">
-                <input type="number" step="0.001" id="essais-${i}-2" oninput="calculateEssais()" placeholder="Lec 2" style="flex: 1; min-width: 80px;">
-                <input type="number" step="0.001" id="essais-${i}-3" oninput="calculateEssais()" placeholder="Lec 3" style="flex: 1; min-width: 80px;">
-                <input type="number" step="0.001" id="essais-${i}-4" oninput="calculateEssais()" placeholder="Lec 4" style="flex: 1; min-width: 80px;">
-                <input type="number" step="0.001" id="essais-${i}-5" oninput="calculateEssais()" placeholder="Lec 5" style="flex: 1; min-width: 80px;">
+                <input type="number" step="0.001" id="essais-${i}-1" oninput="calculateEssais()" placeholder=" Ex Lec 1 : 2200" style="flex: 1; min-width: 80px;">
+                <input type="number" step="0.001" id="essais-${i}-2" oninput="calculateEssais()" placeholder="-" style="flex: 1; min-width: 80px;">
+                <input type="number" step="0.001" id="essais-${i}-3" oninput="calculateEssais()" placeholder="-" style="flex: 1; min-width: 80px;">
+                <input type="number" step="0.001" id="essais-${i}-4" oninput="calculateEssais()" placeholder="-" style="flex: 1; min-width: 80px;">
+                <input type="number" step="0.001" id="essais-${i}-5" oninput="calculateEssais()" placeholder="-" style="flex: 1; min-width: 80px;">
             </div>
 
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 10px; margin-bottom: 15px; background: #f1f5f9; padding: 10px; border-radius: 6px;">
@@ -78,8 +78,8 @@ function buildEssaisMatrix() {
             </div>
 
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px;">
-                <div class="input-group"><label>Épaisseur</label><input type="number" step="0.1" id="essais-${i}-epaisseur" oninput="calculateEssais()"></div>
-                <div class="input-group"><label style="color: #b45309;">Densité Carotte</label><input type="number" step="0.001" id="essais-${i}-carottes" oninput="calculateEssais()"></div>
+                <div class="input-group"><label>Épaisseur (mm)</label><input type="number" step="0.1" id="essais-${i}-epaisseur" oninput="calculateEssais()" placeholder="Ex: 150"></div>
+                <div class="input-group"><label style="color: #b45309;">Densité Carotte</label><input type="number" step="0.001" id="essais-${i}-carottes" oninput="calculateEssais()" placeholder="Ex: 2,450"></div>
                 <div class="input-group"><label>Comp. Nucléo (%)</label><input type="text" id="essais-${i}-c_nuc" readonly style="background: #e2e8f0; font-weight: bold;"></div>
                 <div class="input-group"><label>Comp. Carotte (%)</label><input type="text" id="essais-${i}-c_carot" readonly style="background: #e2e8f0; font-weight: bold;"></div>
             </div>
@@ -115,9 +115,11 @@ function calculateEssais() {
             if (sorted.length % 2 === 0) med = (sorted[sorted.length / 2 - 1] + sorted[sorted.length / 2]) / 2;
             
             // On force l'arrondi à l'unité (sans virgule)
-            document.getElementById(`essais-${i}-med`).value = Math.round(med);
-            document.getElementById(`essais-${i}-int-1`).value = Math.round(sorted[0]);
-            document.getElementById(`essais-${i}-int-2`).value = Math.round(sorted[sorted.length - 1]);
+            const roundedMed = Math.round(med);
+            document.getElementById(`essais-${i}-med`).value = roundedMed;
+            // Intervalle = médiane ± 120 (int-1 : borne inférieure, int-2 : borne supérieure)
+            document.getElementById(`essais-${i}-int-1`).value = roundedMed - 120;
+            document.getElementById(`essais-${i}-int-2`).value = roundedMed + 120;
             
             avg = Math.round(readings.reduce((sum, val) => sum + val, 0) / readings.length);
             document.getElementById(`essais-${i}-moy`).value = avg;

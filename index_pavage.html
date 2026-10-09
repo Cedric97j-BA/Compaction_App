@@ -50,34 +50,36 @@
         </div> 
     </section>
 
+    <!-- INFORMATIONS GÉNÉRALES (HORS ONGLETS, VISIBLES PARTOUT) -->
+    <section id="global-header" class="form-section">
+        <h3>Informations Générales</h3>
+        <div class="grid-2">
+            <div class="input-group"><label>Client</label><input type="text" id="global-client"></div>
+            <div class="input-group"><label>Réf. client</label><input type="text" id="global-ref-client"></div>
+            <div class="input-group"><label>Projet</label><input type="text" id="global-projet"></div>
+            <div class="input-group"><label>Numéro de projet</label><input type="text" id="global-no-projet"></div>
+            <div class="input-group"><label>Endroit</label><input type="text" id="global-endroit" placeholder="Ex: Secteur / quartier du projet"></div>
+            <div class="input-group">
+                <label>Date de l'intervention</label>
+                <input type="date" id="global-date" style="-webkit-appearance: none; min-width: 0; box-sizing: border-box;">
+            </div>
+            <div class="input-group" style="grid-column: 1 / -1;"><label>Nom du technicien</label><input type="text" id="sig-prep-nom"></div>
+        </div>
+    </section>
+
+    <div id="last-saved-status" style="width: 100%; color: #475569; font-size: 0.85rem; margin-bottom: 15px; text-align: center;">Dernière sauvegarde : aucune</div>
+
     <!-- BARRE DE NAVIGATION (TABS) -->
     <nav id="form-navigation" style="margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 5px;">
         <button type="button" class="tab-btn active" onclick="showTab('tab-specs', event)">1. Spécifications</button>
         <button type="button" class="tab-btn" onclick="showTab('tab-essais', event)">2. Essais et Résultats</button>
     </nav>
-    <div id="last-saved-status" style="width: 100%; color: #475569; font-size: 0.85rem; margin-bottom: 15px; text-align: center;">Dernière sauvegarde : aucune</div>
+    
 
     <!-- ============================================== -->
     <!-- ONGLET 1 : SPÉCIFICATIONS                      -->
     <!-- ============================================== -->
     <section id="tab-specs" class="tab-section" style="display: block;">
-        
-        <!-- Informations Générales -->
-        <div class="form-section">
-            <h3>Informations Générales</h3>
-            <div class="grid-2">
-                <div class="input-group"><label>Client</label><input type="text" id="global-client"></div>
-                <div class="input-group"><label>Réf. client</label><input type="text" id="global-ref-client"></div>
-                <div class="input-group"><label>Projet</label><input type="text" id="global-projet"></div>
-                <div class="input-group"><label>Numéro de projet</label><input type="text" id="global-no-projet"></div>
-                <div class="input-group"><label>Endroit (Global)</label><input type="text" id="essais-endroit"></div>
-                <div class="input-group">
-                    <label>Date de l'intervention</label>
-                    <input type="date" id="global-date" style="-webkit-appearance: none; min-width: 0; box-sizing: border-box;">
-                </div>
-                <div class="input-group" style="grid-column: 1 / -1;"><label>Nom du technicien</label><input type="text" id="sig-prep-nom"></div>
-            </div>
-        </div>
 
         <!-- Spécifications -->
         <div class="form-section">
@@ -94,13 +96,13 @@
                     </div>
                 </div>
                 
-                <div class="input-group"><label>Épaisseur théorique</label><input type="text" id="spec-epaisseur"></div>
+                <div class="input-group"><label>Épaisseur théorique (mm)</label><input type="text" id="spec-epaisseur"></div>
                 <div class="input-group"><label>Couche sous-jacente</label><input type="text" id="spec-sous-jac"></div>
                 
-                <div class="input-group" style="background: #e0f2fe; padding: 10px; border-radius: 6px; border: 1px solid #7dd3fc; grid-column: 1 / -1;">
-                    <label style="color: #0369a1;">Densité maximale (Essentiel pour calculs)</label>
+                <div class="input-group" style="background: #e0f2fe; border-radius: 6px; border: 1px solid #7dd3fc; grid-column: 1 / -1; align-items: center;">
+                    <label style="color: #0369a1; ">Densité maximale (Essentiel pour calculs)</label>
                     <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
-                        <input type="number" step="0.001" id="spec-dens-max" placeholder="Ex: 2.450" oninput="calculateEssais()" style="border-color: #38bdf8; max-width: 150px;">
+                        <input type="number" step="0.001" id="spec-dens-max" placeholder="Ex: 2,450" oninput="calculateEssais()" style="border-color: #38bdf8; max-width: 150px;">
                         
                         <div style="display: flex; gap: 15px; background: white; padding: 8px 12px; border-radius: 4px; border: 1px solid #38bdf8;">
                             <label style="display: flex; align-items: center; gap: 5px; cursor: pointer; color: #0369a1; font-weight: bold; margin: 0; font-size: 0.9rem;">
@@ -113,7 +115,7 @@
                     </div>
                 </div>
                 
-                <div class="input-group"><label>Densité fournie par</label><input type="text" id="spec-dens-fournie"></div>
+                <div class="input-group"><label>Densité fournie par</label><input type="text" id="spec-dens-fournie" placeholder="Colas / BML"></div>
             </div>
             
             <div style="display: flex; gap: 20px; margin-top: 20px; flex-wrap: wrap;">
@@ -137,12 +139,12 @@
 
         <!-- Nucléodensimètre -->
         <div class="form-section">
-            <h3>Équipement (Nucléodensimètre)</h3>
+            <h3>Nucléodensimètre</h3>
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px;">
-                <div class="input-group"><label>Type</label><input type="text" id="nuc-type"></div>
-                <div class="input-group"><label>Numéro de série</label><input type="text" id="nuc-no"></div>
-                <div class="input-group"><label>Écart 1 (%)</label><input type="text" id="nuc-ecart-1"></div>
-                <div class="input-group"><label>Écart 2 (%)</label><input type="text" id="nuc-ecart-2"></div>
+                <div class="input-group"><label>Type</label><input type="text" id="nuc-type" placeholder="Ex: Troxler 3430"></div>
+                <div class="input-group"><label>Numéro de série</label><input type="text" id="nuc-no" placeholder="Ex: 00000"></div>
+                <div class="input-group"><label>Écart 1 (%)</label><input type="text" id="nuc-ecart-1" placeholder="Ex: 0,00"></div>
+                <div class="input-group"><label>Écart 2 (%)</label><input type="text" id="nuc-ecart-2" placeholder="Ex: 0,00"></div>
             </div>
         </div>
     </section>
@@ -154,6 +156,14 @@
         
         <div class="form-section" style="background: #f0fdf4; border-color: #86efac;">
             <p style="margin: 0; color: #166534; font-weight: bold;">Veuillez entrer les 5 lectures du nucléodensimètre pour chaque emplacement. Les moyennes, médianes et compacités se calculeront automatiquement.</p>
+        </div>
+
+        <!-- Endroit des essais (emplacement précis où les essais sont réalisés) -->
+        <div class="form-section">
+            <div class="input-group">
+                <label>Endroit des essais</label>
+                <input type="text" id="essais-endroit" placeholder="Ex: 123 rue Principale, voie de droite">
+            </div>
         </div>
 
         <!-- Matrice de 3 Endroits générée par JS -->
